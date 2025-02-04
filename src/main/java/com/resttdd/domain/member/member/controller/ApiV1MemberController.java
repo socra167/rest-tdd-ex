@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class ApiV1MemberController {
 
 	@PostMapping("/join")
-	public RsData<Void> test() {
-		return new RsData<>("201-1", "");
+	public RsData<Void> join() {
+		return new RsData<>("201-1", "회원 가입이 완료되었습니다.");
 	}
 }

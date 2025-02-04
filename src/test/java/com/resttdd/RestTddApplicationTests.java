@@ -38,7 +38,7 @@ class RestTddApplicationTests {
 			.andExpect(status().isCreated()) // Expected: 201 CREATED
 			.andExpect(handler().handlerType(ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
 			.andExpect(handler().methodName("join")) // Endpoint를 처리하는 메서드명: "join"
-			.andExpect(jsonPath("$.resultCode").value("201-1")) // 결과 body의 JSON 데이터를 검증
+			.andExpect(jsonPath("$.code").value("201-1")) // 결과 body의 JSON 데이터를 검증
 			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."));
 	}
 }
