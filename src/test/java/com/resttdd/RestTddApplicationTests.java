@@ -59,6 +59,11 @@ class RestTddApplicationTests {
 			.andExpect(handler().handlerType(ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
 			.andExpect(handler().methodName("join")) // Endpoint를 처리하는 메서드명: "join"
 			.andExpect(jsonPath("$.code").value("201-1")) // 결과 body의 JSON 데이터를 검증
-			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."));
+			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."))
+			.andExpect(jsonPath("$.data").exists()) // JSON에 data가 존재하는지 검증
+			.andExpect(jsonPath("$.data.id").isNumber()) // data 내부 id가 숫자인지 검증
+			.andExpect(jsonPath("$.data.nickname").value("무명"))
+			.andExpect(jsonPath("$.data.createdDate").exists())
+			.andExpect(jsonPath("$.data.modifiedDate").exists());
 	}
 }
