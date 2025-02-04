@@ -9,6 +9,7 @@ import com.resttdd.domain.member.member.dto.MemberDto;
 import com.resttdd.domain.member.member.entity.Member;
 import com.resttdd.domain.member.member.service.MemberService;
 import com.resttdd.global.dto.RsData;
+import com.resttdd.global.exception.ServiceException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,8 +24,11 @@ public class ApiV1MemberController {
 	}
 
 	@PostMapping("/join")
-	public RsData<MemberDto> join(@RequestBody JoinReqBody reqBody) {
-		Member member = memberService.join(reqBody.username(), reqBody.password(), reqBody.nickname());
+	public RsData<MemberDto> join(@RequestBody JoinReqBody body) {
+		memberService.findByUsername(body.username())
+			.ifPresent(_ -> {throw new ServiceException("409-1", "이미 사용중인 아이디입니다.");});
+
+		Member member = memberService.join(body.username(), body.password(), body.nickname());
 		return new RsData<>(
 			"201-1",
 			"회원 가입이 완료되었습니다.",
