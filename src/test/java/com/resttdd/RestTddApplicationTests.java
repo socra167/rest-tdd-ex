@@ -1,5 +1,6 @@
 package com.resttdd;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.resttdd.domain.member.member.controller.ApiV1MemberController;
+import com.resttdd.domain.member.member.entity.Member;
+import com.resttdd.domain.member.member.service.MemberService;
 
 @Transactional
 @SpringBootTest
@@ -28,6 +31,9 @@ class RestTddApplicationTests {
 	@Autowired
 	private MockMvc mvc; // 컨트롤러를 테스트하기 위해 사용한다. MockMvc로 내부적으로 서버처럼 보이게 사용할 수 있다
 
+	@Autowired
+	private MemberService memberService;
+
 	@Test
 	@DisplayName("회원 가입을 할 수 있다")
 	void join() throws Exception {
@@ -36,7 +42,7 @@ class RestTddApplicationTests {
 				post("/api/v1/members/join") // post, get, ...
 					.content("""
 						{
-							"username" : "user4",
+							"username" : "usernew",
 							"password" : "1234",
 							"nickname" : "무명"
 						}
@@ -44,6 +50,9 @@ class RestTddApplicationTests {
 					.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
 			)
 			.andDo(print());
+
+		Member member = memberService.findByUsername("usernew").get();
+		assertThat(member.getNickname()).isEqualTo("무명");
 
 		resultActions
 			.andExpect(status().isCreated()) // Expected: 201 CREATED
