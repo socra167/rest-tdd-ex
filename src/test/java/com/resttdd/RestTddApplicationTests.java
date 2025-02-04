@@ -56,7 +56,8 @@ class RestTddApplicationTests {
 
 		resultActions
 			.andExpect(status().isCreated()) // Expected: 201 CREATED
-			.andExpect(handler().handlerType(ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
+			.andExpect(handler().handlerType(
+				ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
 			.andExpect(handler().methodName("join")) // Endpoint를 처리하는 메서드명: "join"
 			.andExpect(jsonPath("$.code").value("201-1")) // 결과 body의 JSON 데이터를 검증
 			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."))
@@ -90,5 +91,36 @@ class RestTddApplicationTests {
 			.andExpect(handler().methodName("join"))
 			.andExpect(jsonPath("$.code").value("409-1"))
 			.andExpect(jsonPath("$.msg").value("이미 사용중인 아이디입니다."));
+	}
+
+	@Test
+	@DisplayName("로그인을 할 수 있다")
+	void login() throws Exception {
+		ResultActions resultActions = mvc
+			.perform(
+				post("/api/v1/members/login")
+					.content("""
+						{
+						    "username": "user1",
+						    "password": "1234"
+						}
+						""".stripIndent())
+					.contentType(
+						new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+					)
+			)
+			.andDo(print());
+
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(handler().handlerType(ApiV1MemberController.class))
+			.andExpect(handler().methodName("login"))
+			.andExpect(jsonPath("$.code").value("200-1"))
+			.andExpect(jsonPath("$.msg").value("%s님 환영합니다.".formatted("유저1")))
+			.andExpect(jsonPath("$.data").exists())
+			.andExpect(jsonPath("$.data.id").isNumber())
+			.andExpect(jsonPath("$.data.nickname").value("무명"))
+			.andExpect(jsonPath("$.data.createdDate").exists())
+			.andExpect(jsonPath("$.data.modifiedDate").exists());
 	}
 }
