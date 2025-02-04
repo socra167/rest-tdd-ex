@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.resttdd.domain.member.member.controller.ApiV1MemberController;
+
 @Transactional
 @SpringBootTest
 @ActiveProfiles("test")
@@ -33,7 +35,8 @@ class RestTddApplicationTests {
 			.andDo(print());
 
 		resultActions
-			.andExpect(status().isCreated()); // Expected: 201 CREATED
-		// 엔드포인트를 처리하는 컨트롤러가 없는 상태이므로 당연히 404가 응답되고, 테스트가 실패한다
+			.andExpect(status().isCreated()) // Expected: 201 CREATED
+			.andExpect(handler().handlerType(ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
+			.andExpect(handler().methodName("join")); // Endpoint를 처리하는 메서드명: "join"
 	}
 }
