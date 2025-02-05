@@ -258,4 +258,33 @@ class ApiV1PostControllerTest {
 				.andExpect(jsonPath("$.msg").value("자신이 작성한 글만 수정 가능합니다."));
 		}
 	}
+
+	@Nested
+	@DisplayName("글 삭제")
+	class delete {
+
+		@Test
+		@DisplayName("성공 - 글을 삭제할 수 있다")
+		void deleteA() throws Exception {
+			var postId = 1L;
+			var apiKey = "user1";
+			var resultActions = deleteRequest(postId, apiKey);
+
+			resultActions
+				.andExpect(status().isOk())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("delete"))
+				.andExpect(jsonPath("$.code").value("200-1"))
+				.andExpect(jsonPath("$.msg").value("%d번 글 삭제가 완료되었습니다.".formatted(postId)));
+		}
+
+		private ResultActions deleteRequest(long postId, String apiKey) throws Exception {
+			return mvc
+				.perform(
+					delete("/api/v1/posts/%d".formatted(postId))
+						.header("Authorization", "Bearer %s".formatted(apiKey))
+				)
+				.andDo(print());
+		}
+	}
 }
