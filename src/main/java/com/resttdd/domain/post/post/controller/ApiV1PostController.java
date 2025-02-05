@@ -1,5 +1,6 @@
 package com.resttdd.domain.post.post.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,8 +69,23 @@ public class ApiV1PostController {
 
 		return new RsData<>(
 			"200-1",
-			"%d번 글 수정이 완료되었습니다.".formatted(post.getId()),
+			"%d번 글 삭제가 완료되었습니다.".formatted(post.getId()),
 			new PostDto(post)
+		);
+	}
+
+	@DeleteMapping("{id}")
+	public RsData<Void> delete(@PathVariable long id) {
+		Member actor = rq.getAuthenticatedActor();
+		Post post = postService.getItem(id).get();
+
+		post.canDelete(actor);
+
+		postService.delete(post);
+
+		return new RsData<>(
+			"403-1",
+			"자신이 작성한 글만 삭제 가능합니다."
 		);
 	}
 }

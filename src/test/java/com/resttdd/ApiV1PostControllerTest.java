@@ -286,5 +286,20 @@ class ApiV1PostControllerTest {
 				)
 				.andDo(print());
 		}
+
+		@Test
+		@DisplayName("실패 - 자신이 작성하지 않은 글을 삭제할 수 없다")
+		void deleeeB() throws Exception {
+			var postId = 1L;
+			var apiKey = "user1";
+			var resultActions = deleteRequest(postId, apiKey);
+
+			resultActions
+				.andExpect(status().isForbidden())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("delete"))
+				.andExpect(jsonPath("$.code").value("403-1"))
+				.andExpect(jsonPath("$.msg").value("자신이 작성한 글만 삭제 가능합니다."));
+		}
 	}
 }
