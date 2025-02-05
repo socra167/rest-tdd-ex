@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,36 +31,59 @@ class ApiV1PostControllerTest {
 	@Autowired
 	private PostService postService;
 
-	@Test
-	@DisplayName("글 단건 조회를 할 수 있다")
-	void item() throws Exception {
-		long postId = 1L;
-		ResultActions resultActions = mvc
-			.perform(
-				get("/api/v1/posts/1".formatted(postId))
-			)
-			.andDo(print());
+	@Nested
+	@DisplayName("글 단건 조회")
+	class getItem {
 
-		Post post = postService.getItem(postId).get();
+		@Test
+		@DisplayName("성공 - 글 단건 조회를 할 수 있다")
+		void itemA() throws Exception {
+			long postId = 1L;
+			ResultActions resultActions = itemRequest(postId);
 
-		resultActions
-			.andExpect(status().isOk())
-			.andExpect(handler().handlerType(ApiV1PostController.class))
-			.andExpect(handler().methodName("getItem"))
-			.andExpect(jsonPath("$.code").value("200-1"))
-			.andExpect(jsonPath("$.msg").value("%d번 글을 조회하였습니다.".formatted(postId)));
-		checkPost(resultActions, post);
-	}
+			Post post = postService.getItem(postId).get();
 
-	private void checkPost(ResultActions resultActions, Post post) throws Exception {
-		resultActions
-			.andExpect(jsonPath("$.data").exists())
-			.andExpect(jsonPath("$.data.id").value(post.getId()))
-			.andExpect(jsonPath("$.data.title").value(post.getTitle()))
-			.andExpect(jsonPath("$.data.content").value(post.getContent()))
-			.andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
-			.andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getNickname()))
-			.andExpect(jsonPath("$.data.createdDate").value(containsString(post.getCreatedDate().toString())))
-			.andExpect(jsonPath("$.data.modifiedDate").value(containsString(post.getModifiedDate().toString())));
+			resultActions
+				.andExpect(status().isOk())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("getItem"))
+				.andExpect(jsonPath("$.code").value("200-1"))
+				.andExpect(jsonPath("$.msg").value("%d번 글을 조회하였습니다.".formatted(postId)));
+			checkPost(resultActions, post);
+		}
+
+		@Test
+		@DisplayName("실패 - 존재하지 않는 글을 조회하면 실패한다")
+		void itemB() throws Exception {
+			long postId = 9999999L;
+			ResultActions resultActions = itemRequest(postId);
+
+			resultActions
+				.andExpect(status().isNotFound())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("getItem"))
+				.andExpect(jsonPath("$.code").value("404-1"))
+				.andExpect(jsonPath("$.msg").value("존재하지 않는 글입니다."));
+		}
+
+		private ResultActions itemRequest(long postId) throws Exception {
+			return mvc
+				.perform(
+					get("/api/v1/posts/%s".formatted(postId))
+				)
+				.andDo(print());
+		}
+
+		private void checkPost(ResultActions resultActions, Post post) throws Exception {
+			resultActions
+				.andExpect(jsonPath("$.data").exists())
+				.andExpect(jsonPath("$.data.id").value(post.getId()))
+				.andExpect(jsonPath("$.data.title").value(post.getTitle()))
+				.andExpect(jsonPath("$.data.content").value(post.getContent()))
+				.andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
+				.andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getNickname()))
+				.andExpect(jsonPath("$.data.createdDate").value(containsString(post.getCreatedDate().toString())))
+				.andExpect(jsonPath("$.data.modifiedDate").value(containsString(post.getModifiedDate().toString())));
+		}
 	}
 }
