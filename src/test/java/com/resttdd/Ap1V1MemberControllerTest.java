@@ -169,25 +169,41 @@ public class Ap1V1MemberControllerTest {
 		@DisplayName("성공 - 내 정보를 조회할 수 있다")
 		void me() throws Exception {
 			String apiKey = "user1";
-			ResultActions resultActions = mvc
-				.perform(
-					get("/api/v1/members/me")
-						.header("Authorization", "Bearer %s".formatted(apiKey))
-				)
-				.andDo(print());
+			ResultActions resultActions = meRequest(apiKey);
 
 			Member member = memberService.findByApiKey(apiKey).get();
-			checkMe(resultActions);
-			checkMember(resultActions, member);
-		}
 
-		private void checkMe(ResultActions resultActions) throws Exception {
 			resultActions
 				.andExpect(status().isOk())
 				.andExpect(handler().handlerType(ApiV1MemberController.class))
 				.andExpect(handler().methodName("me"))
 				.andExpect(jsonPath("$.code").value("200-1"))
 				.andExpect(jsonPath("$.msg").value("내 정보 조회가 완료되었습니다."));
+			checkMember(resultActions, member);
+		}
+
+		@Test
+		@DisplayName("실패 - 잘못된 api key로 내 정보 조회를 하면 실패한다")
+		void me2() throws Exception {
+			String apiKey = "";
+			ResultActions resultActions = meRequest(apiKey);
+
+			resultActions
+				.andExpect(status().isUnauthorized())
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("me"))
+				.andExpect(jsonPath("$.code").value("401-1"))
+				.andExpect(jsonPath("$.msg").value("잘못된 인증키입니다."));
+		}
+
+		private ResultActions meRequest(String apiKey) throws Exception {
+			ResultActions resultActions = mvc
+				.perform(
+					get("/api/v1/members/me")
+						.header("Authorization", "Bearer %s".formatted(apiKey))
+				)
+				.andDo(print());
+			return resultActions;
 		}
 	}
 }
