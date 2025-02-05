@@ -129,7 +129,7 @@ public class Ap1V1MemberControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 비밀번호가 틀리면 로그인에 실패해야 한다")
+		@DisplayName("실패 - 비밀번호가 틀리면 로그인에 실패한다")
 		void loginB_wrongPassword() throws Exception {
 			String username = "user1";
 			String password = "1234";
@@ -144,7 +144,7 @@ public class Ap1V1MemberControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 존재하지 않는 아이디면 로그인에 실패해야 한다")
+		@DisplayName("실패 - 존재하지 않는 아이디면 로그인에 실패한다")
 		void loginC_wrongUsername() throws Exception {
 			String username = "";
 			String password = "1234";
