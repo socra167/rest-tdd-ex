@@ -162,5 +162,46 @@ class ApiV1PostControllerTest {
 					title : NotBlank : must not be blank
 					""".trim().stripIndent()));
 		}
+
+	}
+
+	@Nested
+	@DisplayName("글 수정")
+	class modify {
+
+		@Test
+		@DisplayName("성공 - 글을 수정할 수 있다")
+		void modifyA() throws Exception {
+			var postId = 1L;
+			var apiKey = "user1";
+			var title = "수정된 글 제목";
+			var content = "수정된 글 내용";
+			var resultActions = modifyRequest(postId, apiKey, title, content);
+
+			resultActions
+				.andExpect(status().isOk())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("modify"))
+				.andExpect(jsonPath("$.code").value("200-1"))
+				.andExpect(jsonPath("$.msg").value("글 수정이 완료되었습니다."));
+			var post = postService.getItem(postId).get();
+			checkPost(resultActions, post);
+		}
+
+		private ResultActions modifyRequest(Long postId, String apiKey, String title, String content) throws Exception {
+			return mvc
+				.perform(
+					put("/api/v1/posts/%d".formatted(postId))
+						.header("Authorization", "Bearer %s".formatted(apiKey))
+						.content("""
+							{
+								"title" : "%s",
+								"content" : "%s"
+							}
+							""".formatted(title, content).stripIndent())
+						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+				)
+				.andDo(print());
+		}
 	}
 }
