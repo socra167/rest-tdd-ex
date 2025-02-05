@@ -97,20 +97,7 @@ public class Ap1V1MemberControllerTest {
 	void login() throws Exception {
 		String username = "user1";
 		String password = "user11234";
-		ResultActions resultActions = mvc
-			.perform(
-				post("/api/v1/members/login")
-					.content("""
-						{
-						    "username": "%s",
-						    "password": "%s"
-						}
-						""".formatted(username, password).stripIndent())
-					.contentType(
-						new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
-					)
-			)
-			.andDo(print());
+		ResultActions resultActions = loginRequest(username, password);
 
 		Member member = memberService.findByUsername("user1").get();
 		resultActions
@@ -132,7 +119,18 @@ public class Ap1V1MemberControllerTest {
 	void loginWithWrongPassword() throws Exception {
 		String username = "user1";
 		String password = "1234";
-		ResultActions resultActions = mvc
+		ResultActions resultActions = loginRequest(username, password);
+
+		resultActions
+			.andExpect(status().isUnauthorized()) // 401 UNAUTHORIZED
+			.andExpect(handler().handlerType(ApiV1MemberController.class))
+			.andExpect(handler().methodName("login"))
+			.andExpect(jsonPath("$.code").value("401-2"))
+			.andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
+	}
+
+	private ResultActions loginRequest(String username, String password) throws Exception {
+		return mvc
 			.perform(
 				post("/api/v1/members/login")
 					.content("""
@@ -146,12 +144,5 @@ public class Ap1V1MemberControllerTest {
 					)
 			)
 			.andDo(print());
-
-		resultActions
-			.andExpect(status().isUnauthorized()) // 401 UNAUTHORIZED
-			.andExpect(handler().handlerType(ApiV1MemberController.class))
-			.andExpect(handler().methodName("login"))
-			.andExpect(jsonPath("$.code").value("401-2"))
-			.andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
 	}
 }
