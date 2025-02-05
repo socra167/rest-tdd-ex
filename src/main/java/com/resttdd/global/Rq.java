@@ -1,14 +1,16 @@
 package com.resttdd.global;
 
-import com.resttdd.domain.member.member.entity.Member;
-import com.resttdd.domain.member.member.service.MemberService;
-import com.resttdd.global.exception.ServiceException;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.util.Optional;
+import com.resttdd.domain.member.member.entity.Member;
+import com.resttdd.domain.member.member.service.MemberService;
+import com.resttdd.global.exception.ServiceException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 // Request, Response, Session, Cookie, Header
 @Component
@@ -26,7 +28,7 @@ public class Rq {
         Optional<Member> opActor = memberService.findByApiKey(apiKey);
 
         if(opActor.isEmpty()) {
-            throw new ServiceException("401-1", "잘못된 비밀번호 입니다.");
+            throw new ServiceException("401-1", "잘못된 인증키입니다.");
         }
 
         return opActor.get();
