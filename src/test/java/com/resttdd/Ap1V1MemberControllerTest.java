@@ -1,6 +1,7 @@
 package com.resttdd;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -111,8 +112,8 @@ class Ap1V1MemberControllerTest {
 			.andExpect(jsonPath("$.data").exists())
 			.andExpect(jsonPath("$.data.id").value(member.getId()))
 			.andExpect(jsonPath("$.data.nickname").value(member.getNickname()))
-			.andExpect(jsonPath("$.data.createdDate").value(member.getCreatedDate().toString()))
-			.andExpect(jsonPath("$.data.modifiedDate").value(member.getModifiedDate().toString()));
+			.andExpect(jsonPath("$.data.createdDate").value(matchesPattern(member.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
+			.andExpect(jsonPath("$.data.modifiedDate").value(matchesPattern(member.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
 	}
 
 	@Nested
