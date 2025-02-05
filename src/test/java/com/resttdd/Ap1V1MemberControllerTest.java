@@ -59,12 +59,18 @@ public class Ap1V1MemberControllerTest {
 				ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
 			.andExpect(handler().methodName("join")) // Endpoint를 처리하는 메서드명: "join"
 			.andExpect(jsonPath("$.code").value("201-1")) // 결과 body의 JSON 데이터를 검증
-			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."))
-			.andExpect(jsonPath("$.data").exists()) // JSON에 data가 존재하는지 검증
-			.andExpect(jsonPath("$.data.id").isNumber()) // data 내부 id가 숫자인지 검증
-			.andExpect(jsonPath("$.data.nickname").value("무명"))
-			.andExpect(jsonPath("$.data.createdDate").exists())
-			.andExpect(jsonPath("$.data.modifiedDate").exists());
+			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."));
+
+		checkMember(resultActions, member);
+	}
+
+	private void checkMember(ResultActions resultActions, Member member) throws Exception {
+		resultActions
+			.andExpect(jsonPath("$.data").exists())
+			.andExpect(jsonPath("$.data.id").value(member.getId()))
+			.andExpect(jsonPath("$.data.nickname").value(member.getNickname()))
+			.andExpect(jsonPath("$.data.createdDate").value(member.getCreatedDate().toString()))
+			.andExpect(jsonPath("$.data.modifiedDate").value(member.getModifiedDate().toString()));
 	}
 
 	@Test
@@ -144,5 +150,29 @@ public class Ap1V1MemberControllerTest {
 					)
 			)
 			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("내 정보를 조회할 수 있다")
+	void me() throws Exception {
+		String username = "user1";
+		Member member = memberService.findByUsername(username).get();
+		String apiKey = member.getApiKey();
+
+		ResultActions resultActions = mvc
+			.perform(
+				get("/api/v1/members/me")
+					.header("Authorization", "Bearer %s".formatted(apiKey))
+			)
+			.andDo(print());
+
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(handler().handlerType(ApiV1MemberController.class))
+			.andExpect(handler().methodName("me"))
+			.andExpect(jsonPath("$.code").value("200-1"))
+			.andExpect(jsonPath("$.msg").value("내 정보 조회가 완료되었습니다."));
+
+		checkMember(resultActions, member);
 	}
 }
