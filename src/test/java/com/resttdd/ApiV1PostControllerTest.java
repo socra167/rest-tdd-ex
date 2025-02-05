@@ -307,7 +307,7 @@ class ApiV1PostControllerTest {
 
 		@Test
 		@DisplayName("실패 - 자신이 작성하지 않은 글을 삭제할 수 없다")
-		void deleeeB() throws Exception {
+		void deleteB() throws Exception {
 			var postId = 1L;
 			var apiKey = "user2";
 			var resultActions = deleteRequest(postId, apiKey);
