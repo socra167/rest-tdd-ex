@@ -220,5 +220,22 @@ class ApiV1PostControllerTest {
 				.andExpect(jsonPath("$.code").value("401-1"))
 				.andExpect(jsonPath("$.msg").value("잘못된 인증키입니다."));
 		}
+
+		@Test
+		@DisplayName("실패 - 자신이 작성하지 않은 글을 수정할 수 없다")
+		void modifyC() throws Exception {
+			var postId = 1L;
+			var apiKey = "user2";
+			var title = "수정된 글 제목";
+			var content = "수정된 글 내용";
+			var resultActions = modifyRequest(postId, apiKey, title, content);
+
+			resultActions
+				.andExpect(status().isUnauthorized())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("modify"))
+				.andExpect(jsonPath("$.code").value("401-1"))
+				.andExpect(jsonPath("$.msg").value("작성자만 글을 수정할 수 있습니다."));
+		}
 	}
 }
