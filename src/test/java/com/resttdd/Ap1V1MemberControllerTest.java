@@ -40,7 +40,7 @@ public class Ap1V1MemberControllerTest {
 
 		@Test
 		@DisplayName("성공 - 회원 가입을 할 수 있다")
-		void join() throws Exception {
+		void joinA() throws Exception {
 			ResultActions resultActions = mvc // resultActions: 수행하고 난 결과
 				.perform(
 					post("/api/v1/members/join") // post, get, ...
@@ -69,7 +69,7 @@ public class Ap1V1MemberControllerTest {
 
 		@Test
 		@DisplayName("실패 - 이미 존재하는 username으로 회원 가입을 하면 실패한다")
-		void join2() throws Exception {
+		void joinB() throws Exception {
 			ResultActions resultActions = mvc
 				.perform(
 					post("/api/v1/members/join")
@@ -108,7 +108,7 @@ public class Ap1V1MemberControllerTest {
 
 		@Test
 		@DisplayName("성공 - 로그인을 할 수 있다")
-		void login() throws Exception {
+		void loginA() throws Exception {
 			String username = "user1";
 			String password = "user11234";
 			ResultActions resultActions = loginRequest(username, password);
@@ -130,7 +130,7 @@ public class Ap1V1MemberControllerTest {
 
 		@Test
 		@DisplayName("실패 - 비밀번호가 틀리면 로그인에 실패해야 한다")
-		void loginWithWrongPassword() throws Exception {
+		void loginB_wrongPassword() throws Exception {
 			String username = "user1";
 			String password = "1234";
 			ResultActions resultActions = loginRequest(username, password);
@@ -167,7 +167,7 @@ public class Ap1V1MemberControllerTest {
 
 		@Test
 		@DisplayName("성공 - 내 정보를 조회할 수 있다")
-		void me() throws Exception {
+		void meA() throws Exception {
 			String apiKey = "user1";
 			ResultActions resultActions = meRequest(apiKey);
 
@@ -184,7 +184,7 @@ public class Ap1V1MemberControllerTest {
 
 		@Test
 		@DisplayName("실패 - 잘못된 api key로 내 정보 조회를 하면 실패한다")
-		void me2() throws Exception {
+		void meB() throws Exception {
 			String apiKey = "";
 			ResultActions resultActions = meRequest(apiKey);
 
