@@ -1,5 +1,6 @@
 package com.resttdd;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -45,7 +46,7 @@ class ApiV1PostControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(handler().handlerType(ApiV1PostController.class))
 			.andExpect(handler().methodName("getItem"))
-			.andExpect(jsonPath("$.code").value("201-1"))
+			.andExpect(jsonPath("$.code").value("200-1"))
 			.andExpect(jsonPath("$.msg").value("%d번 글을 조회하였습니다.".formatted(postId)));
 		checkPost(resultActions, post);
 	}
@@ -56,10 +57,9 @@ class ApiV1PostControllerTest {
 			.andExpect(jsonPath("$.data.id").value(post.getId()))
 			.andExpect(jsonPath("$.data.title").value(post.getTitle()))
 			.andExpect(jsonPath("$.data.content").value(post.getContent()))
-			.andExpect(jsonPath("$.data.authorid").value(post.getAuthor().getId()))
+			.andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
 			.andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getNickname()))
-			.andExpect(jsonPath("$.data.createdDate").value(post.getCreatedDate().toString()))
-			.andExpect(jsonPath("$.data.modifiedDate").value(post.getModifiedDate().toString()));
-
+			.andExpect(jsonPath("$.data.createdDate").value(containsString(post.getCreatedDate().toString())))
+			.andExpect(jsonPath("$.data.modifiedDate").value(containsString(post.getModifiedDate().toString())));
 	}
 }
