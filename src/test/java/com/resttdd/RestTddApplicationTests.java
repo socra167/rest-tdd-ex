@@ -119,7 +119,7 @@ class RestTddApplicationTests {
 			.andExpect(jsonPath("$.msg").value("%s님 환영합니다.".formatted("유저1")))
 			.andExpect(jsonPath("$.data").exists())
 			.andExpect(jsonPath("$.data.id").isNumber())
-			.andExpect(jsonPath("$.data.nickname").value("무명"))
+			.andExpect(jsonPath("$.data.nickname").value("유저1"))
 			.andExpect(jsonPath("$.data.createdDate").exists())
 			.andExpect(jsonPath("$.data.modifiedDate").exists());
 	}
