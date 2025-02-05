@@ -26,8 +26,7 @@ import com.resttdd.domain.member.member.service.MemberService;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc // 내부적으로 네트워크를 사용하지 않고, 네트워크를 사용하는 것처럼 보이게 테스트를 진행한다
-class RestTddApplicationTests {
-
+public class Ap1V1MemberControllerTest {
 	@Autowired
 	private MockMvc mvc; // 컨트롤러를 테스트하기 위해 사용한다. MockMvc로 내부적으로 서버처럼 보이게 사용할 수 있다
 
