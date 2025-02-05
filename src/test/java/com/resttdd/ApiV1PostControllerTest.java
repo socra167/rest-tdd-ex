@@ -75,7 +75,6 @@ class ApiV1PostControllerTest {
 				)
 				.andDo(print());
 		}
-
 	}
 
 	private void checkPost(ResultActions resultActions, Post post) throws Exception {
@@ -164,7 +163,6 @@ class ApiV1PostControllerTest {
 					title : NotBlank : must not be blank
 					""".trim().stripIndent()));
 		}
-
 	}
 
 	@Nested
@@ -207,7 +205,7 @@ class ApiV1PostControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 잘못된 API key 글을 수정하면 실패한다")
+		@DisplayName("실패 - 잘못된 API key로 글을 수정하면 실패한다")
 		void modifyB() throws Exception {
 			var postId = 1L;
 			var apiKey = "wrong_api_key";
@@ -248,8 +246,8 @@ class ApiV1PostControllerTest {
 		void modifyD() throws Exception {
 			var postId = 1L;
 			var apiKey = "user2";
-			var title = "수정된 글 제목";
-			var content = "수정된 글 내용";
+			var title = "다른 유저의 글 제목 수정";
+			var content = "다른 유저의 글 내용 수정";
 			var resultActions = modifyRequest(postId, apiKey, title, content);
 
 			resultActions
