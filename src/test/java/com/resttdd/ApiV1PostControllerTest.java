@@ -41,7 +41,7 @@ class ApiV1PostControllerTest {
 		@Test
 		@DisplayName("성공 - 다른 유저의 공개글 단건 조회를 할 수 있다")
 		void itemA() throws Exception {
-			var apiKey = "user1";
+			var apiKey = "";
 			var postId = 2L;
 			var resultActions = itemRequest(apiKey, postId);
 			var post = postService.getItem(postId).get();
