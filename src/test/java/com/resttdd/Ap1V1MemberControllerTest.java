@@ -52,7 +52,6 @@ public class Ap1V1MemberControllerTest {
 
 		Member member = memberService.findByUsername("usernew").get();
 		assertThat(member.getNickname()).isEqualTo("무명");
-
 		resultActions
 			.andExpect(status().isCreated()) // Expected: 201 CREATED
 			.andExpect(handler().handlerType(
@@ -60,7 +59,6 @@ public class Ap1V1MemberControllerTest {
 			.andExpect(handler().methodName("join")) // Endpoint를 처리하는 메서드명: "join"
 			.andExpect(jsonPath("$.code").value("201-1")) // 결과 body의 JSON 데이터를 검증
 			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."));
-
 		checkMember(resultActions, member);
 	}
 
@@ -155,10 +153,7 @@ public class Ap1V1MemberControllerTest {
 	@Test
 	@DisplayName("내 정보를 조회할 수 있다")
 	void me() throws Exception {
-		String username = "user1";
-		Member member = memberService.findByUsername(username).get();
-		String apiKey = member.getApiKey();
-
+		String apiKey = "user1";
 		ResultActions resultActions = mvc
 			.perform(
 				get("/api/v1/members/me")
@@ -166,13 +161,13 @@ public class Ap1V1MemberControllerTest {
 			)
 			.andDo(print());
 
+		Member member = memberService.findByApiKey(apiKey).get();
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(handler().handlerType(ApiV1MemberController.class))
 			.andExpect(handler().methodName("me"))
 			.andExpect(jsonPath("$.code").value("200-1"))
 			.andExpect(jsonPath("$.msg").value("내 정보 조회가 완료되었습니다."));
-
 		checkMember(resultActions, member);
 	}
 }
