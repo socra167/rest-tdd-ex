@@ -41,22 +41,13 @@ public class Ap1V1MemberControllerTest {
 		@Test
 		@DisplayName("성공 - 회원 가입을 할 수 있다")
 		void joinA() throws Exception {
-			ResultActions resultActions = mvc // resultActions: 수행하고 난 결과
-				.perform(
-					post("/api/v1/members/join") // post, get, ...
-						.content("""
-						{
-							"username" : "usernew",
-							"password" : "1234",
-							"nickname" : "무명"
-						}
-						""".stripIndent())
-						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
-				)
-				.andDo(print());
+			String username = "usernew";
+			String password = "1234";
+			String nickname = "무명";
+			ResultActions resultActions = joinRequest(username, password, nickname);
 
-			Member member = memberService.findByUsername("usernew").get();
-			assertThat(member.getNickname()).isEqualTo("무명");
+			Member member = memberService.findByUsername(username).get();
+			assertThat(member.getNickname()).isEqualTo(nickname);
 			resultActions
 				.andExpect(status().isCreated()) // Expected: 201 CREATED
 				.andExpect(handler().handlerType(
@@ -70,19 +61,7 @@ public class Ap1V1MemberControllerTest {
 		@Test
 		@DisplayName("실패 - 이미 존재하는 아이디로 회원 가입을 하면 실패한다")
 		void joinB() throws Exception {
-			ResultActions resultActions = mvc
-				.perform(
-					post("/api/v1/members/join")
-						.content("""
-						{
-							"username" : "user1",
-							"password" : "1234",
-							"nickname" : "무명"
-						}
-						""".stripIndent())
-						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
-				)
-				.andDo(print());
+			ResultActions resultActions = joinRequest("user1", "1234", "무명");
 
 			resultActions
 				.andExpect(status().isConflict())
@@ -90,6 +69,40 @@ public class Ap1V1MemberControllerTest {
 				.andExpect(handler().methodName("join"))
 				.andExpect(jsonPath("$.code").value("409-1"))
 				.andExpect(jsonPath("$.msg").value("이미 사용중인 아이디입니다."));
+		}
+
+		@Test
+		@DisplayName("실패 - 입력 데이터가 누락되면 회원 가입에 실패한다")
+		void joinC() throws Exception {
+			ResultActions resultActions = joinRequest("", "", "");
+
+			resultActions
+				.andExpect(status().isBadRequest())
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("join"))
+				.andExpect(jsonPath("$.code").value("400-1"))
+				.andExpect(jsonPath("$.msg").value("""
+					nickname : NotBlank : must not be blank
+					password : NotBlank : must not be blank
+					username : NotBlank : must not be blank
+					""".trim().stripIndent()));
+		}
+
+		private ResultActions joinRequest(String username, String password, String nickname) throws Exception {
+			ResultActions resultActions = mvc
+				.perform(
+					post("/api/v1/members/join")
+						.content("""
+							{
+								"username" : "%s",
+								"password" : "%s",
+								"nickname" : "%s"
+							}
+							""".formatted(username, password, nickname).stripIndent())
+						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+				)
+				.andDo(print());
+			return resultActions;
 		}
 	}
 
@@ -101,7 +114,7 @@ public class Ap1V1MemberControllerTest {
 			.andExpect(jsonPath("$.data.createdDate").value(member.getCreatedDate().toString()))
 			.andExpect(jsonPath("$.data.modifiedDate").value(member.getModifiedDate().toString()));
 	}
-	
+
 	@Nested
 	@DisplayName("로그인")
 	class login {
@@ -193,11 +206,11 @@ public class Ap1V1MemberControllerTest {
 				.perform(
 					post("/api/v1/members/login")
 						.content("""
-						{
-						    "username": "%s",
-						    "password": "%s"
-						}
-						""".formatted(username, password).stripIndent())
+							{
+							    "username": "%s",
+							    "password": "%s"
+							}
+							""".formatted(username, password).stripIndent())
 						.contentType(
 							new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
 						)

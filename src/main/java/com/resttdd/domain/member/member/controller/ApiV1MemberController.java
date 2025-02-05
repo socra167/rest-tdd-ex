@@ -25,11 +25,11 @@ public class ApiV1MemberController {
 	private final MemberService memberService;
 	private final Rq rq;
 
-	record JoinReqBody(String username, String password, String nickname) {
+	record JoinReqBody(@NotBlank String username, @NotBlank String password, @NotBlank String nickname) {
 	}
 
 	@PostMapping("/join")
-	public RsData<MemberDto> join(@RequestBody JoinReqBody body) {
+	public RsData<MemberDto> join(@RequestBody @Valid JoinReqBody body) {
 		memberService.findByUsername(body.username())
 			.ifPresent(_ -> {
 				throw new ServiceException("409-1", "이미 사용중인 아이디입니다.");
