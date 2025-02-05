@@ -68,7 +68,7 @@ public class Ap1V1MemberControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 이미 존재하는 username으로 회원 가입을 하면 실패한다")
+		@DisplayName("실패 - 이미 존재하는 아이디로 회원 가입을 하면 실패한다")
 		void joinB() throws Exception {
 			ResultActions resultActions = mvc
 				.perform(
@@ -228,7 +228,7 @@ public class Ap1V1MemberControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 잘못된 api key로 내 정보 조회를 하면 실패한다")
+		@DisplayName("실패 - 잘못된 API key로 내 정보 조회를 하면 실패한다")
 		void meB() throws Exception {
 			String apiKey = "";
 			ResultActions resultActions = meRequest(apiKey);
