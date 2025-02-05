@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,33 +34,63 @@ public class Ap1V1MemberControllerTest {
 	@Autowired
 	private MemberService memberService;
 
-	@Test
-	@DisplayName("회원 가입을 할 수 있다")
-	void join() throws Exception {
-		ResultActions resultActions = mvc // resultActions: 수행하고 난 결과
-			.perform(
-				post("/api/v1/members/join") // post, get, ...
-					.content("""
+	@Nested
+	@DisplayName("회원 가입")
+	class join {
+
+		@Test
+		@DisplayName("성공 - 회원 가입을 할 수 있다")
+		void join() throws Exception {
+			ResultActions resultActions = mvc // resultActions: 수행하고 난 결과
+				.perform(
+					post("/api/v1/members/join") // post, get, ...
+						.content("""
 						{
 							"username" : "usernew",
 							"password" : "1234",
 							"nickname" : "무명"
 						}
 						""".stripIndent())
-					.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
-			)
-			.andDo(print());
+						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+				)
+				.andDo(print());
 
-		Member member = memberService.findByUsername("usernew").get();
-		assertThat(member.getNickname()).isEqualTo("무명");
-		resultActions
-			.andExpect(status().isCreated()) // Expected: 201 CREATED
-			.andExpect(handler().handlerType(
-				ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
-			.andExpect(handler().methodName("join")) // Endpoint를 처리하는 메서드명: "join"
-			.andExpect(jsonPath("$.code").value("201-1")) // 결과 body의 JSON 데이터를 검증
-			.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."));
-		checkMember(resultActions, member);
+			Member member = memberService.findByUsername("usernew").get();
+			assertThat(member.getNickname()).isEqualTo("무명");
+			resultActions
+				.andExpect(status().isCreated()) // Expected: 201 CREATED
+				.andExpect(handler().handlerType(
+					ApiV1MemberController.class)) // Endpoint를 처리하는 Controller: ApiV1MemberController.class
+				.andExpect(handler().methodName("join")) // Endpoint를 처리하는 메서드명: "join"
+				.andExpect(jsonPath("$.code").value("201-1")) // 결과 body의 JSON 데이터를 검증
+				.andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."));
+			checkMember(resultActions, member);
+		}
+
+		@Test
+		@DisplayName("실패 - 이미 존재하는 username으로 회원 가입을 하면 실패한다")
+		void join2() throws Exception {
+			ResultActions resultActions = mvc
+				.perform(
+					post("/api/v1/members/join")
+						.content("""
+						{
+							"username" : "user1",
+							"password" : "1234",
+							"nickname" : "무명"
+						}
+						""".stripIndent())
+						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+				)
+				.andDo(print());
+
+			resultActions
+				.andExpect(status().isConflict())
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("join"))
+				.andExpect(jsonPath("$.code").value("409-1"))
+				.andExpect(jsonPath("$.msg").value("이미 사용중인 아이디입니다."));
+		}
 	}
 
 	private void checkMember(ResultActions resultActions, Member member) throws Exception {
@@ -70,104 +101,93 @@ public class Ap1V1MemberControllerTest {
 			.andExpect(jsonPath("$.data.createdDate").value(member.getCreatedDate().toString()))
 			.andExpect(jsonPath("$.data.modifiedDate").value(member.getModifiedDate().toString()));
 	}
+	
+	@Nested
+	@DisplayName("로그인")
+	class login {
 
-	@Test
-	@DisplayName("이미 존재하는 username으로 회원 가입을 하면 실패한다")
-	void join2() throws Exception {
-		ResultActions resultActions = mvc
-			.perform(
-				post("/api/v1/members/join")
-					.content("""
-						{
-							"username" : "user1",
-							"password" : "1234",
-							"nickname" : "무명"
-						}
-						""".stripIndent())
-					.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
-			)
-			.andDo(print());
+		@Test
+		@DisplayName("성공 - 로그인을 할 수 있다")
+		void login() throws Exception {
+			String username = "user1";
+			String password = "user11234";
+			ResultActions resultActions = loginRequest(username, password);
 
-		resultActions
-			.andExpect(status().isConflict())
-			.andExpect(handler().handlerType(ApiV1MemberController.class))
-			.andExpect(handler().methodName("join"))
-			.andExpect(jsonPath("$.code").value("409-1"))
-			.andExpect(jsonPath("$.msg").value("이미 사용중인 아이디입니다."));
-	}
+			Member member = memberService.findByUsername("user1").get();
+			resultActions
+				.andExpect(status().isOk())
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("login"))
+				.andExpect(jsonPath("$.code").value("200-1"))
+				.andExpect(jsonPath("$.msg").value("%s님 환영합니다.".formatted(member.getNickname())))
+				.andExpect(jsonPath("$.data").exists())
+				.andExpect(jsonPath("$.data.item.id").value(member.getId()))
+				.andExpect(jsonPath("$.data.item.nickname").value(member.getNickname()))
+				.andExpect(jsonPath("$.data.item.createdDate").value(member.getCreatedDate().toString()))
+				.andExpect(jsonPath("$.data.item.modifiedDate").value(member.getCreatedDate().toString()))
+				.andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
+		}
 
-	@Test
-	@DisplayName("로그인을 할 수 있다")
-	void login() throws Exception {
-		String username = "user1";
-		String password = "user11234";
-		ResultActions resultActions = loginRequest(username, password);
+		@Test
+		@DisplayName("실패 - 비밀번호가 틀리면 로그인에 실패해야 한다")
+		void loginWithWrongPassword() throws Exception {
+			String username = "user1";
+			String password = "1234";
+			ResultActions resultActions = loginRequest(username, password);
 
-		Member member = memberService.findByUsername("user1").get();
-		resultActions
-			.andExpect(status().isOk())
-			.andExpect(handler().handlerType(ApiV1MemberController.class))
-			.andExpect(handler().methodName("login"))
-			.andExpect(jsonPath("$.code").value("200-1"))
-			.andExpect(jsonPath("$.msg").value("%s님 환영합니다.".formatted(member.getNickname())))
-			.andExpect(jsonPath("$.data").exists())
-			.andExpect(jsonPath("$.data.item.id").value(member.getId()))
-			.andExpect(jsonPath("$.data.item.nickname").value(member.getNickname()))
-			.andExpect(jsonPath("$.data.item.createdDate").value(member.getCreatedDate().toString()))
-			.andExpect(jsonPath("$.data.item.modifiedDate").value(member.getCreatedDate().toString()))
-			.andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
-	}
+			resultActions
+				.andExpect(status().isUnauthorized()) // 401 UNAUTHORIZED
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("login"))
+				.andExpect(jsonPath("$.code").value("401-2"))
+				.andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
+		}
 
-	@Test
-	@DisplayName("비밀번호가 틀리면 로그인에 실패해야 한다")
-	void loginWithWrongPassword() throws Exception {
-		String username = "user1";
-		String password = "1234";
-		ResultActions resultActions = loginRequest(username, password);
-
-		resultActions
-			.andExpect(status().isUnauthorized()) // 401 UNAUTHORIZED
-			.andExpect(handler().handlerType(ApiV1MemberController.class))
-			.andExpect(handler().methodName("login"))
-			.andExpect(jsonPath("$.code").value("401-2"))
-			.andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
-	}
-
-	private ResultActions loginRequest(String username, String password) throws Exception {
-		return mvc
-			.perform(
-				post("/api/v1/members/login")
-					.content("""
+		private ResultActions loginRequest(String username, String password) throws Exception {
+			return mvc
+				.perform(
+					post("/api/v1/members/login")
+						.content("""
 						{
 						    "username": "%s",
 						    "password": "%s"
 						}
 						""".formatted(username, password).stripIndent())
-					.contentType(
-						new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
-					)
-			)
-			.andDo(print());
+						.contentType(
+							new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+						)
+				)
+				.andDo(print());
+		}
 	}
 
-	@Test
-	@DisplayName("내 정보를 조회할 수 있다")
-	void me() throws Exception {
-		String apiKey = "user1";
-		ResultActions resultActions = mvc
-			.perform(
-				get("/api/v1/members/me")
-					.header("Authorization", "Bearer %s".formatted(apiKey))
-			)
-			.andDo(print());
+	@Nested
+	@DisplayName("내 정보 조회")
+	class me {
 
-		Member member = memberService.findByApiKey(apiKey).get();
-		resultActions
-			.andExpect(status().isOk())
-			.andExpect(handler().handlerType(ApiV1MemberController.class))
-			.andExpect(handler().methodName("me"))
-			.andExpect(jsonPath("$.code").value("200-1"))
-			.andExpect(jsonPath("$.msg").value("내 정보 조회가 완료되었습니다."));
-		checkMember(resultActions, member);
+		@Test
+		@DisplayName("성공 - 내 정보를 조회할 수 있다")
+		void me() throws Exception {
+			String apiKey = "user1";
+			ResultActions resultActions = mvc
+				.perform(
+					get("/api/v1/members/me")
+						.header("Authorization", "Bearer %s".formatted(apiKey))
+				)
+				.andDo(print());
+
+			Member member = memberService.findByApiKey(apiKey).get();
+			checkMe(resultActions);
+			checkMember(resultActions, member);
+		}
+
+		private void checkMe(ResultActions resultActions) throws Exception {
+			resultActions
+				.andExpect(status().isOk())
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("me"))
+				.andExpect(jsonPath("$.code").value("200-1"))
+				.andExpect(jsonPath("$.msg").value("내 정보 조회가 완료되었습니다."));
+		}
 	}
 }
