@@ -86,8 +86,8 @@ class ApiV1PostControllerTest {
 			.andExpect(jsonPath("$.data.content").value(post.getContent()))
 			.andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
 			.andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getNickname()))
-			.andExpect(jsonPath("$.data.createdDate").value(containsString(post.getCreatedDate().toString())))
-			.andExpect(jsonPath("$.data.modifiedDate").value(containsString(post.getModifiedDate().toString())));
+			.andExpect(jsonPath("$.data.createdDate").value(matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
+			.andExpect(jsonPath("$.data.modifiedDate").value(matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
 	}
 
 	@Nested
@@ -183,7 +183,7 @@ class ApiV1PostControllerTest {
 				.andExpect(handler().handlerType(ApiV1PostController.class))
 				.andExpect(handler().methodName("modify"))
 				.andExpect(jsonPath("$.code").value("200-1"))
-				.andExpect(jsonPath("$.msg").value("글 수정이 완료되었습니다."));
+				.andExpect(jsonPath("$.msg").value("%d번 글 수정이 완료되었습니다.".formatted(postId)));
 			var post = postService.getItem(postId).get();
 			checkPost(resultActions, post);
 		}
