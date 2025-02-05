@@ -122,8 +122,8 @@ public class Ap1V1MemberControllerTest {
 			.andExpect(jsonPath("$.data").exists())
 			.andExpect(jsonPath("$.data.item.id").value(member.getId()))
 			.andExpect(jsonPath("$.data.item.nickname").value(member.getNickname()))
-			.andExpect(jsonPath("$.data.item.createdDate").exists())
-			.andExpect(jsonPath("$.data.item.modifiedDate").exists())
-			.andExpect(jsonPath("$.data.apiKey").exists());
+			.andExpect(jsonPath("$.data.item.createdDate").value(member.getCreatedDate().toString()))
+			.andExpect(jsonPath("$.data.item.modifiedDate").value(member.getCreatedDate().toString()))
+			.andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
 	}
 }
