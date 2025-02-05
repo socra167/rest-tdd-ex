@@ -143,6 +143,21 @@ public class Ap1V1MemberControllerTest {
 				.andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
 		}
 
+		@Test
+		@DisplayName("실패 - 존재하지 않는 아이디면 로그인에 실패해야 한다")
+		void loginC_wrongUsername() throws Exception {
+			String username = "";
+			String password = "1234";
+			ResultActions resultActions = loginRequest(username, password);
+
+			resultActions
+				.andExpect(status().isUnauthorized()) // 401 UNAUTHORIZED
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("login"))
+				.andExpect(jsonPath("$.code").value("401-1"))
+				.andExpect(jsonPath("$.msg").value("잘못된 아이디입니다."));
+		}
+
 		private ResultActions loginRequest(String username, String password) throws Exception {
 			return mvc
 				.perform(
