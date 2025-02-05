@@ -39,10 +39,11 @@ class ApiV1PostControllerTest {
 	class getItem {
 
 		@Test
-		@DisplayName("성공 - 글 단건 조회를 할 수 있다")
+		@DisplayName("성공 - 다른 유저의 공개글 단건 조회를 할 수 있다")
 		void itemA() throws Exception {
+			var apiKey = "user1";
 			var postId = 1L;
-			var resultActions = itemRequest(postId);
+			var resultActions = itemRequest(apiKey, postId);
 			var post = postService.getItem(postId).get();
 
 			resultActions
@@ -57,8 +58,9 @@ class ApiV1PostControllerTest {
 		@Test
 		@DisplayName("실패 - 존재하지 않는 글을 조회하면 실패한다")
 		void itemB() throws Exception {
+			var apiKey = "user1";
 			var postId = 9999999L;
-			var resultActions = itemRequest(postId);
+			var resultActions = itemRequest(apiKey, postId);
 
 			resultActions
 				.andExpect(status().isNotFound())
@@ -68,10 +70,26 @@ class ApiV1PostControllerTest {
 				.andExpect(jsonPath("$.msg").value("존재하지 않는 글입니다."));
 		}
 
-		private ResultActions itemRequest(long postId) throws Exception {
+		@Test
+		@DisplayName("실패 - 다른 유저의 비공개 글을 조회하면 실패한다")
+		void itemC() throws Exception {
+			var apiKey = "user2";
+			var postId = 1L;
+			var resultActions = itemRequest(apiKey, postId);
+
+			resultActions
+				.andExpect(status().isForbidden())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("getItem"))
+				.andExpect(jsonPath("$.code").value("403-1"))
+				.andExpect(jsonPath("$.msg").value("비공개 설정된 글입니다."));
+		}
+
+		private ResultActions itemRequest(String apiKey, long postId) throws Exception {
 			return mvc
 				.perform(
 					get("/api/v1/posts/%s".formatted(postId))
+						.header("Authorization", "Bear %s".formatted(apiKey))
 				)
 				.andDo(print());
 		}
