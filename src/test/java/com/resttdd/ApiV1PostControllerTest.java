@@ -86,8 +86,10 @@ class ApiV1PostControllerTest {
 			.andExpect(jsonPath("$.data.content").value(post.getContent()))
 			.andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
 			.andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getNickname()))
-			.andExpect(jsonPath("$.data.createdDate").value(matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
-			.andExpect(jsonPath("$.data.modifiedDate").value(matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
+			.andExpect(jsonPath("$.data.createdDate").value(
+				matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
+			.andExpect(jsonPath("$.data.modifiedDate").value(
+				matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
 	}
 
 	@Nested
@@ -222,8 +224,28 @@ class ApiV1PostControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 자신이 작성하지 않은 글을 수정할 수 없다")
+		@DisplayName("실패 - 입력 데이터가 누락되면 글 수정에 실패한다")
 		void modifyC() throws Exception {
+			var postId = 1L;
+			var apiKey = "user1";
+			var title = "";
+			var content = "";
+			var resultActions = modifyRequest(postId, apiKey, title, content);
+
+			resultActions
+				.andExpect(status().isBadRequest())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("modify"))
+				.andExpect(jsonPath("$.code").value("400-1"))
+				.andExpect(jsonPath("$.msg").value("""
+					content : NotBlank : must not be blank
+					title : NotBlank : must not be blank
+					""".trim().stripIndent()));
+		}
+
+		@Test
+		@DisplayName("실패 - 자신이 작성하지 않은 글을 수정할 수 없다")
+		void modifyD() throws Exception {
 			var postId = 1L;
 			var apiKey = "user2";
 			var title = "수정된 글 제목";
