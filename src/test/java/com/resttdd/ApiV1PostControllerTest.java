@@ -129,7 +129,7 @@ class ApiV1PostControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 잘못된 API key로 글 작성에 실패한다")
+		@DisplayName("실패 - 잘못된 API key로 글을 작성하면 실패한다")
 		void writeB() throws Exception {
 			var apiKey = "";
 			var title = "새로운 글 제목";
@@ -202,6 +202,23 @@ class ApiV1PostControllerTest {
 						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
 				)
 				.andDo(print());
+		}
+
+		@Test
+		@DisplayName("실패 - 잘못된 API key 글을 수정하면 실패한다")
+		void modifyB() throws Exception {
+			var postId = 1L;
+			var apiKey = "wrong_api_key";
+			var title = "수정된 글 제목";
+			var content = "수정된 글 내용";
+			var resultActions = modifyRequest(postId, apiKey, title, content);
+
+			resultActions
+				.andExpect(status().isUnauthorized())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("modify"))
+				.andExpect(jsonPath("$.code").value("401-1"))
+				.andExpect(jsonPath("$.msg").value("잘못된 인증키입니다."));
 		}
 	}
 }
