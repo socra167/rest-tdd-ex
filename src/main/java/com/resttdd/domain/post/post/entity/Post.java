@@ -1,15 +1,23 @@
 package com.resttdd.domain.post.post.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.resttdd.domain.member.member.entity.Member;
 import com.resttdd.domain.post.comment.entity.Comment;
 import com.resttdd.global.entity.BaseTime;
 import com.resttdd.global.exception.ServiceException;
-import jakarta.persistence.*;
-import jakarta.validation.Valid;
-import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @AllArgsConstructor
@@ -23,6 +31,7 @@ public class Post extends BaseTime {
     private Member author;
     private String title;
     private String content;
+    private boolean published;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @Builder.Default
@@ -78,5 +87,10 @@ public class Post extends BaseTime {
         if (actor.equals(this.author)) return;
 
         throw new ServiceException("403-1", "자신이 작성한 글만 삭제 가능합니다.");
+    }
+
+    public void canRead(Member actor) {
+        if (actor.equals(this.author)) return;
+        throw new ServiceException("403-1", "비공개 설정된 글입니다.");
     }
 }

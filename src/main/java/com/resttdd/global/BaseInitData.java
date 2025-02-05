@@ -1,16 +1,18 @@
 package com.resttdd.global;
 
-import com.resttdd.domain.member.member.entity.Member;
-import com.resttdd.domain.member.member.service.MemberService;
-import com.resttdd.domain.post.post.entity.Post;
-import com.resttdd.domain.post.post.service.PostService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.resttdd.domain.member.member.entity.Member;
+import com.resttdd.domain.member.member.service.MemberService;
+import com.resttdd.domain.post.post.entity.Post;
+import com.resttdd.domain.post.post.service.PostService;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -57,14 +59,14 @@ public class BaseInitData {
         Member user1 = memberService.findByUsername("user1").get();
         Member user2 = memberService.findByUsername("user2").get();
 
-        Post post1 = postService.write(user1, "축구 하실분 모집합니다.", "저녁 6시까지 모여주세요.");
+        Post post1 = postService.write(user1, "축구 하실분 모집합니다.", "저녁 6시까지 모여주세요.", false);
         post1.addComment(user1, "저 참석하겠습니다.");
         post1.addComment(user2, "공격수 자리 있나요?");
 
-        Post post2 = postService.write(user1, "농구하실분?", "3명 모집");
+        Post post2 = postService.write(user1, "농구하실분?", "3명 모집", true);
         post2.addComment(user1, "저는 이미 축구하기로 함..");
 
-        postService.write(user2, "title3", "content3");
+        postService.write(user2, "title3", "content3", true);
 
     }
 

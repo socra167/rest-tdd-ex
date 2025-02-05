@@ -31,8 +31,10 @@ public class ApiV1PostController {
 
 	@GetMapping("{id}")
 	public RsData<PostDto> getItem(@PathVariable long id) {
+		Member actor = rq.getAuthenticatedActor();
 		Post post = postService.getItem(id)
 			.orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 글입니다."));
+		post.canRead(actor);
 
 		return new RsData<>(
 			"200-1",
@@ -48,7 +50,7 @@ public class ApiV1PostController {
 	public RsData<PostDto> write(@RequestBody @Valid WriteReqBody body) {
 		Member actor = rq.getAuthenticatedActor();
 
-		Post post = postService.write(actor, body.title(), body.content());
+		Post post = postService.write(actor, body.title(), body.content(), false);
 
 		return new RsData<>(
 			"201-1",
@@ -69,7 +71,7 @@ public class ApiV1PostController {
 
 		return new RsData<>(
 			"200-1",
-			"%d번 글 삭제가 완료되었습니다.".formatted(post.getId()),
+			"%d번 글 수정이 완료되었습니다.".formatted(post.getId()),
 			new PostDto(post)
 		);
 	}
@@ -84,8 +86,8 @@ public class ApiV1PostController {
 		postService.delete(post);
 
 		return new RsData<>(
-			"403-1",
-			"자신이 작성한 글만 삭제 가능합니다."
+			"200-1",
+			"%d번 글 삭제가 완료되었습니다.".formatted(post.getId())
 		);
 	}
 }

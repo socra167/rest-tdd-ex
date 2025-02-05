@@ -16,47 +16,48 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostService {
 
-    private final PostRepository postRepository;
+	private final PostRepository postRepository;
 
-    public Post write(Member author, String title, String content) {
+	public Post write(Member author, String title, String content, boolean published) {
 
-        return postRepository.save(
-                Post
-                        .builder()
-                        .author(author)
-                        .title(title)
-                        .content(content)
-                        .build()
-        );
-    }
+		return postRepository.save(
+			Post
+				.builder()
+				.author(author)
+				.title(title)
+				.content(content)
+				.published(published)
+				.build()
+		);
+	}
 
-    public List<Post> getItems() {
-        return postRepository.findAll();
-    }
+	public List<Post> getItems() {
+		return postRepository.findAll();
+	}
 
-    public Optional<Post> getItem(long id) {
-        return postRepository.findById(id);
-    }
+	public Optional<Post> getItem(long id) {
+		return postRepository.findById(id);
+	}
 
-    public long count() {
-        return postRepository.count();
-    }
+	public long count() {
+		return postRepository.count();
+	}
 
-    public void delete(Post post) {
-        postRepository.delete(post);
-    }
+	public void delete(Post post) {
+		postRepository.delete(post);
+	}
 
-    @Transactional
-    public void modify(Post post, String title, String content) {
-        post.setTitle(title);
-        post.setContent(content);
-    }
+	@Transactional
+	public void modify(Post post, String title, String content) {
+		post.setTitle(title);
+		post.setContent(content);
+	}
 
-    public void flush() {
-        postRepository.flush();
-    }
+	public void flush() {
+		postRepository.flush();
+	}
 
 	public Optional<Post> getLatestItem() {
-        return postRepository.findTopByOrderByIdDesc();
+		return postRepository.findTopByOrderByIdDesc();
 	}
 }
