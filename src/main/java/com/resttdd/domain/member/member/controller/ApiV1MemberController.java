@@ -46,6 +46,10 @@ public class ApiV1MemberController {
 	public RsData<LoginResBody> login(@RequestBody LoginReqBody body) {
 		Member member = memberService.findByUsername(body.username()).get();
 
+		if (!member.getPassword().equals(body.password)) {
+			throw new ServiceException("401-2", "비밀번호가 일치하지 않습니다.");
+		}
+
 		return new RsData<>(
 			"200-1",
 			"%s님 환영합니다.".formatted(member.getNickname()),
