@@ -15,6 +15,8 @@ import com.resttdd.global.Rq;
 import com.resttdd.global.dto.RsData;
 import com.resttdd.global.exception.ServiceException;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 
@@ -37,11 +39,11 @@ public class ApiV1PostController {
 		);
 	}
 
-	record WriteReqBody(String title, String content) {
+	record WriteReqBody(@NotBlank String title, @NotBlank String content) {
 	}
 
 	@PostMapping
-	public RsData<PostDto> write(@RequestBody WriteReqBody body) {
+	public RsData<PostDto> write(@RequestBody @Valid WriteReqBody body) {
 		Member actor = rq.getAuthenticatedActor();
 
 		Post post = postService.write(actor, body.title(), body.content());

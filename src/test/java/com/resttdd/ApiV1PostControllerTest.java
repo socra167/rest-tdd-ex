@@ -129,13 +129,12 @@ class ApiV1PostControllerTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 잘못된 API key로 글을 작성할 수 없다")
+		@DisplayName("실패 - 잘못된 API key로 글 작성에 실패한다")
 		void writeB() throws Exception {
 			var apiKey = "";
 			var title = "새로운 글 제목";
 			var content = "새로운 글 내용";
 			var resultActions = writeRequest(apiKey, title, content);
-			var post = postService.getLatestItem().get();
 
 			resultActions
 				.andExpect(status().isUnauthorized())
@@ -143,6 +142,25 @@ class ApiV1PostControllerTest {
 				.andExpect(handler().methodName("write"))
 				.andExpect(jsonPath("$.code").value("401-1"))
 				.andExpect(jsonPath("$.msg").value("잘못된 인증키입니다."));
+		}
+
+		@Test
+		@DisplayName("실패 - 입력 데이터가 누락되면 글 작성에 실패한다")
+		void writeC() throws Exception {
+			var apiKey = "user1";
+			var title = "";
+			var content = "";
+			var resultActions = writeRequest(apiKey, title, content);
+
+			resultActions
+				.andExpect(status().isBadRequest())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("write"))
+				.andExpect(jsonPath("$.code").value("400-1"))
+				.andExpect(jsonPath("$.msg").value("""
+					content : NotBlank : must not be blank
+					title : NotBlank : must not be blank
+					""".trim().stripIndent()));
 		}
 	}
 }
