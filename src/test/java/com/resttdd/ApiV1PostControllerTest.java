@@ -93,9 +93,10 @@ class ApiV1PostControllerTest {
 	@Test
 	@DisplayName("글을 작성할 수 있다")
 	void writeA() throws Exception {
+		var apiKey = "user1";
 		var title = "새로운 글 제목";
 		var content = "새로운 글 내용";
-		var resultActions = writeRequest(title, content);
+		var resultActions = writeRequest(apiKey, title, content);
 		var post = postService.getLatestItem().get();
 
 		resultActions
@@ -107,14 +108,15 @@ class ApiV1PostControllerTest {
 		checkPost(resultActions, post);
 	}
 
-	private ResultActions writeRequest(String title, String content) throws Exception {
+	private ResultActions writeRequest(String apiKey, String title, String content) throws Exception {
 		return mvc
 			.perform(
-				post("/api/v1/members/join")
+				post("/api/v1/posts")
+					.header("Authorization", "Bearer %s".formatted(apiKey))
 					.content("""
 							{
 								"title" : "%s",
-								"content" : "%s",
+								"content" : "%s"
 							}
 							""".formatted(title, content).stripIndent())
 					.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
