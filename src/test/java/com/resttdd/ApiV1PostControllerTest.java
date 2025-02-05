@@ -90,37 +90,59 @@ class ApiV1PostControllerTest {
 			.andExpect(jsonPath("$.data.modifiedDate").value(containsString(post.getModifiedDate().toString())));
 	}
 
-	@Test
-	@DisplayName("글을 작성할 수 있다")
-	void writeA() throws Exception {
-		var apiKey = "user1";
-		var title = "새로운 글 제목";
-		var content = "새로운 글 내용";
-		var resultActions = writeRequest(apiKey, title, content);
-		var post = postService.getLatestItem().get();
+	@Nested
+	@DisplayName("글 작성")
+	class write {
 
-		resultActions
-			.andExpect(status().isCreated())
-			.andExpect(handler().handlerType(ApiV1PostController.class))
-			.andExpect(handler().methodName("write"))
-			.andExpect(jsonPath("$.code").value("201-1"))
-			.andExpect(jsonPath("$.msg").value("%d번 글 작성이 완료되었습니다.".formatted(post.getId())));
-		checkPost(resultActions, post);
-	}
+		@Test
+		@DisplayName("성공 - 글을 작성할 수 있다")
+		void writeA() throws Exception {
+			var apiKey = "user1";
+			var title = "새로운 글 제목";
+			var content = "새로운 글 내용";
+			var resultActions = writeRequest(apiKey, title, content);
+			var post = postService.getLatestItem().get();
 
-	private ResultActions writeRequest(String apiKey, String title, String content) throws Exception {
-		return mvc
-			.perform(
-				post("/api/v1/posts")
-					.header("Authorization", "Bearer %s".formatted(apiKey))
-					.content("""
+			resultActions
+				.andExpect(status().isCreated())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("write"))
+				.andExpect(jsonPath("$.code").value("201-1"))
+				.andExpect(jsonPath("$.msg").value("%d번 글 작성이 완료되었습니다.".formatted(post.getId())));
+			checkPost(resultActions, post);
+		}
+
+		private ResultActions writeRequest(String apiKey, String title, String content) throws Exception {
+			return mvc
+				.perform(
+					post("/api/v1/posts")
+						.header("Authorization", "Bearer %s".formatted(apiKey))
+						.content("""
 							{
 								"title" : "%s",
 								"content" : "%s"
 							}
 							""".formatted(title, content).stripIndent())
-					.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
-			)
-			.andDo(print());
+						.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+				)
+				.andDo(print());
+		}
+
+		@Test
+		@DisplayName("실패 - 잘못된 API key로 글을 작성할 수 없다")
+		void writeB() throws Exception {
+			var apiKey = "";
+			var title = "새로운 글 제목";
+			var content = "새로운 글 내용";
+			var resultActions = writeRequest(apiKey, title, content);
+			var post = postService.getLatestItem().get();
+
+			resultActions
+				.andExpect(status().isUnauthorized())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("write"))
+				.andExpect(jsonPath("$.code").value("401-1"))
+				.andExpect(jsonPath("$.msg").value("잘못된 인증키입니다."));
+		}
 	}
 }
