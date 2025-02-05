@@ -13,6 +13,8 @@ import com.resttdd.global.Rq;
 import com.resttdd.global.dto.RsData;
 import com.resttdd.global.exception.ServiceException;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,7 +31,9 @@ public class ApiV1MemberController {
 	@PostMapping("/join")
 	public RsData<MemberDto> join(@RequestBody JoinReqBody body) {
 		memberService.findByUsername(body.username())
-			.ifPresent(_ -> {throw new ServiceException("409-1", "이미 사용중인 아이디입니다.");});
+			.ifPresent(_ -> {
+				throw new ServiceException("409-1", "이미 사용중인 아이디입니다.");
+			});
 
 		Member member = memberService.join(body.username(), body.password(), body.nickname());
 		return new RsData<>(
@@ -39,18 +43,18 @@ public class ApiV1MemberController {
 		);
 	}
 
-	record LoginReqBody(String username, String password) {
+	record LoginReqBody(@NotBlank String username, @NotBlank String password) {
 	}
 
 	record LoginResBody(MemberDto item, String apiKey) {
 	}
 
 	@PostMapping("/login")
-	public RsData<LoginResBody> login(@RequestBody LoginReqBody body) {
+	public RsData<LoginResBody> login(@RequestBody @Valid LoginReqBody body) {
 		Member member = memberService.findByUsername(body.username())
 			.orElseThrow(() -> new ServiceException("401-1", "잘못된 아이디입니다."));
 
-		if (!member.getPassword().equals(body.password)) {
+		if (!member.getPassword().equals(body.password())) {
 			throw new ServiceException("401-2", "비밀번호가 일치하지 않습니다.");
 		}
 
