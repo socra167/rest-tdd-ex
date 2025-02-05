@@ -231,11 +231,11 @@ class ApiV1PostControllerTest {
 			var resultActions = modifyRequest(postId, apiKey, title, content);
 
 			resultActions
-				.andExpect(status().isUnauthorized())
+				.andExpect(status().isForbidden())
 				.andExpect(handler().handlerType(ApiV1PostController.class))
 				.andExpect(handler().methodName("modify"))
-				.andExpect(jsonPath("$.code").value("401-1"))
-				.andExpect(jsonPath("$.msg").value("작성자만 글을 수정할 수 있습니다."));
+				.andExpect(jsonPath("$.code").value("403-1"))
+				.andExpect(jsonPath("$.msg").value("자신이 작성한 글만 수정 가능합니다."));
 		}
 	}
 }
