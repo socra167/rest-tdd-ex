@@ -1,5 +1,6 @@
 package com.resttdd.domain.member.member.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.resttdd.domain.member.member.dto.MemberDto;
 import com.resttdd.domain.member.member.entity.Member;
 import com.resttdd.domain.member.member.service.MemberService;
+import com.resttdd.global.Rq;
 import com.resttdd.global.dto.RsData;
 import com.resttdd.global.exception.ServiceException;
 
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class ApiV1MemberController {
 
 	private final MemberService memberService;
+	private final Rq rq;
 
 	record JoinReqBody(String username, String password, String nickname) {
 	}
@@ -57,6 +60,17 @@ public class ApiV1MemberController {
 				new MemberDto(member),
 				member.getApiKey()
 			)
+		);
+	}
+
+	@GetMapping("/me")
+	public RsData<MemberDto> me() {
+		Member actor = rq.getAuthenticatedActor();
+
+		return new RsData<>(
+			"200-1",
+			"내 정보 조회가 완료되었습니다.",
+			new MemberDto(actor)
 		);
 	}
 }
