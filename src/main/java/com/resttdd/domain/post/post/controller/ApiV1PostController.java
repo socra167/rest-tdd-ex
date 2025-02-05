@@ -64,6 +64,8 @@ public class ApiV1PostController {
 
 		postService.modify(post, body.title(), body.content());
 
+		post.canModify(actor);
+
 		return new RsData<>(
 			"200-1",
 			"%d번 글 수정이 완료되었습니다.".formatted(post.getId()),
