@@ -1,14 +1,16 @@
 package com.resttdd.domain.post.post.service;
 
-import com.resttdd.domain.member.member.entity.Member;
-import com.resttdd.domain.post.post.entity.Post;
-import com.resttdd.domain.post.post.repository.PostRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.resttdd.domain.member.member.entity.Member;
+import com.resttdd.domain.post.post.entity.Post;
+import com.resttdd.domain.post.post.repository.PostRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -53,4 +55,8 @@ public class PostService {
     public void flush() {
         postRepository.flush();
     }
+
+	public Optional<Post> getLatestItem() {
+        return postRepository.findTopByOrderByIdDesc();
+	}
 }
