@@ -146,7 +146,7 @@ public class Ap1V1MemberControllerTest {
 		@Test
 		@DisplayName("실패 - 존재하지 않는 아이디면 로그인에 실패한다")
 		void loginC_wrongUsername() throws Exception {
-			String username = "";
+			String username = "nonexistent";
 			String password = "1234";
 			ResultActions resultActions = loginRequest(username, password);
 
@@ -156,6 +156,21 @@ public class Ap1V1MemberControllerTest {
 				.andExpect(handler().methodName("login"))
 				.andExpect(jsonPath("$.code").value("401-1"))
 				.andExpect(jsonPath("$.msg").value("잘못된 아이디입니다."));
+		}
+
+		@Test
+		@DisplayName("실패 - 아이디가 비어 있으면 로그인에 실패한다")
+		void loginD_emptyUsername() throws Exception {
+			String username = "";
+			String password = "1234";
+			ResultActions resultActions = loginRequest(username, password);
+
+			resultActions
+				.andExpect(status().isBadRequest()) // 400 BAD REQUEST
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("login"))
+				.andExpect(jsonPath("$.code").value("400-1"))
+				.andExpect(jsonPath("$.msg").value("username : NotBlank : must not be blank"));
 		}
 
 		private ResultActions loginRequest(String username, String password) throws Exception {
