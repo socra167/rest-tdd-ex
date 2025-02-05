@@ -126,4 +126,32 @@ public class Ap1V1MemberControllerTest {
 			.andExpect(jsonPath("$.data.item.modifiedDate").value(member.getCreatedDate().toString()))
 			.andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
 	}
+
+	@Test
+	@DisplayName("비밀번호가 틀리면 로그인에 실패해야 한다")
+	void loginWithWrongPassword() throws Exception {
+		String username = "user1";
+		String password = "1234";
+		ResultActions resultActions = mvc
+			.perform(
+				post("/api/v1/members/login")
+					.content("""
+						{
+						    "username": "%s",
+						    "password": "%s"
+						}
+						""".formatted(username, password).stripIndent())
+					.contentType(
+						new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+					)
+			)
+			.andDo(print());
+
+		resultActions
+			.andExpect(status().isUnauthorized()) // 401 UNAUTHORIZED
+			.andExpect(handler().handlerType(ApiV1MemberController.class))
+			.andExpect(handler().methodName("login"))
+			.andExpect(jsonPath("$.code").value("401-2"))
+			.andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
+	}
 }
