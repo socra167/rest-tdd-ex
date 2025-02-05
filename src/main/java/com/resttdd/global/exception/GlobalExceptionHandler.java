@@ -1,35 +1,18 @@
 package com.resttdd.global.exception;
 
-import com.resttdd.global.app.AppConfig;
-import com.resttdd.global.dto.RsData;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import com.resttdd.global.app.AppConfig;
+import com.resttdd.global.dto.RsData;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<RsData<Void>> handle(NoSuchElementException e) {
-
-        // 개발 모드에서만 작동되도록.
-        if(AppConfig.isNotProd()) e.printStackTrace();
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(
-                        new RsData<>(
-                                "404-1",
-                                "해당 데이터가 존재하지 않습니다"
-                        )
-                );
-    }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<RsData<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
