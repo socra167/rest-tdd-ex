@@ -72,4 +72,35 @@ class ApiV1CommentControllerTest {
 			.andExpect(jsonPath("$.data.modifiedDate").value(
 				matchesPattern(comment.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
 	}
+
+	@Test
+	@DisplayName("댓글을 수정할 수 있다")
+	void modify() throws Exception {
+		var apiKey = "user1";
+		var content = "수정된 댓글 내용";
+		var postId = 1L;
+		var commentId = 1L;
+		var resultActions = mvc
+			.perform(
+				put("/api/v1/posts/%d/comments/%d".formatted(postId, commentId))
+					.header("Authorization", "Bearer " + apiKey)
+					.content("""
+						{
+							"content" : "%s"
+						}
+						""".formatted(content).trim().stripIndent())
+					.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+			)
+			.andDo(print());
+
+		var post = postService.getItem(postId).get();
+		var comment = post.getCommentById(commentId);
+
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(handler().handlerType(ApiV1CommentController.class))
+			.andExpect(handler().methodName("modify"))
+			.andExpect(jsonPath("$.code").value("200-1"))
+			.andExpect(jsonPath("$.msg").value("%d번 댓글 수정이 완료되었습니다.".formatted(comment.getId())));
+	}
 }
