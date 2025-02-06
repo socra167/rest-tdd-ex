@@ -40,12 +40,12 @@ class ApiV1PostControllerTest {
 	class items {
 
 		@Test
-		@DisplayName("글 목록 조회")
+		@DisplayName("성공 - 글 목록을 조회할 수 있으며 결과는 페이징되어야 한다")
 		void itemsA() throws Exception {
-			var apiKey = "";
-			var resultActions = itemsRequest(apiKey);
-
-			List<Post> posts = postService.getListedItems(1, 3).getContent();
+			var page = 1;
+			var pageSize = 3;
+			var resultActions = itemsRequest();
+			var posts = postService.getListedItems(page, pageSize).getContent();
 			checkPosts(resultActions, posts);
 
 			resultActions
@@ -54,18 +54,43 @@ class ApiV1PostControllerTest {
 				.andExpect(handler().methodName("getItems"))
 				.andExpect(jsonPath("$.code").value("200-1"))
 				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
-				.andExpect(jsonPath("$.data.items.length()").value(3)) // 한 페이지당 보여줄 글 개수
-				.andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
+				.andExpect(jsonPath("$.data.items.length()").value(pageSize)) // 한 페이지당 보여줄 글 개수
+				.andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
 				.andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
 		}
 
-		private ResultActions itemsRequest(String apiKey) throws Exception {
+		private ResultActions itemsRequest() throws Exception {
 			return mvc
 				.perform(
 					get("/api/v1/posts")
-						.header("Authorization", "Bearer %s".formatted(apiKey))
 				)
 				.andDo(print());
+		}
+
+		@Test
+		@DisplayName("성공 - 제목으로 글을 검색할 수 있으며 결과는 페이징되어야 한다")
+		void itemsB_searchPostsByTitle() throws Exception {
+			var page = 1;
+			var pageSize = 3;
+			var keywordType = "title";
+			var keyword = "title";
+			var resultActions = mvc
+				.perform(
+					get("/api/v1/posts?page=%d&pageSize=%d&keywordType=%s&keyword=%s"
+						.formatted(page, pageSize, keywordType, keyword))
+				)
+				.andDo(print());
+
+			resultActions
+				.andExpect(status().isOk())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("getItems"))
+				.andExpect(jsonPath("$.code").value("200-1"))
+				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다.".formatted(keyword)))
+				.andExpect(jsonPath("$.data.items.length()").value(pageSize)) // 한 페이지당 보여줄 글 개수
+				.andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
+				.andExpect(jsonPath("$.data.totalPages").value(3)) // 전체 페이지 개수
+				.andExpect(jsonPath("$.data.totalItems").value(7));
 		}
 	}
 

@@ -20,7 +20,7 @@ public class PageDto {
 
 	public PageDto(Page<Post> postPage) {
 		this.items = postPage.getContent().stream().map(PostDto::new).toList();
-		this.currentPageNo = postPage.getNumber();
+		this.currentPageNo = postPage.getNumber() + 1;
 		this.totalPages = postPage.getTotalPages();
 		this.totalItems = postPage.getTotalElements();
 		this.pageSize = postPage.getSize();
