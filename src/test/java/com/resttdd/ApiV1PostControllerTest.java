@@ -41,7 +41,7 @@ class ApiV1PostControllerTest {
 		var apiKey = "";
 		var resultActions = itemsRequest(apiKey);
 
-		List<Post> posts = postService.getItems();
+		List<Post> posts = postService.getListedItems();
 
 		resultActions
 			.andExpect(status().isOk())

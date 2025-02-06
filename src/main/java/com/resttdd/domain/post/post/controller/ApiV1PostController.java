@@ -33,7 +33,7 @@ public class ApiV1PostController {
 
 	@GetMapping
 	public RsData<List<PostDto>> getItems() {
-		List<Post> posts = postService.getItems();
+		List<Post> posts = postService.getListedItems();
 
 		return new RsData<>(
 			"200-1",
