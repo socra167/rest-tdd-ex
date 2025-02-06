@@ -70,7 +70,6 @@ class ApiV1PostControllerTest {
 					.andExpect(jsonPath("$.data.items[%d]".formatted(i)).exists())
 					.andExpect(jsonPath("$.data.items[%d].id".formatted(i)).value(post.getId()))
 					.andExpect(jsonPath("$.data.items[%d].title".formatted(i)).value(post.getTitle()))
-					.andExpect(jsonPath("$.data.items[%d].content".formatted(i)).value(post.getContent()))
 					.andExpect(jsonPath("$.data.items[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
 					.andExpect(jsonPath("$.data.items[%d].authorName".formatted(i)).value(post.getAuthor().getNickname()))
 					.andExpect(jsonPath("$.data.items[%d].published".formatted(i)).value(post.isPublished()))

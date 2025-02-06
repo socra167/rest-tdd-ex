@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.resttdd.domain.member.member.entity.Member;
 import com.resttdd.domain.post.post.dto.PageDto;
-import com.resttdd.domain.post.post.dto.PostDto;
+import com.resttdd.domain.post.post.dto.PostWithContnetDto;
 import com.resttdd.domain.post.post.entity.Post;
 import com.resttdd.domain.post.post.service.PostService;
 import com.resttdd.global.Rq;
@@ -47,7 +47,7 @@ public class ApiV1PostController {
 	}
 
 	@GetMapping("{id}")
-	public RsData<PostDto> getItem(@PathVariable long id) {
+	public RsData<PostWithContnetDto> getItem(@PathVariable long id) {
 		Post post = postService.getItem(id)
 			.orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 글입니다."));
 
@@ -59,7 +59,7 @@ public class ApiV1PostController {
 		return new RsData<>(
 			"200-1",
 			"%d번 글을 조회하였습니다.".formatted(post.getId()),
-			new PostDto(post)
+			new PostWithContnetDto(post)
 		);
 	}
 
@@ -67,7 +67,7 @@ public class ApiV1PostController {
 	}
 
 	@PostMapping
-	public RsData<PostDto> write(@RequestBody @Valid WriteReqBody body) {
+	public RsData<PostWithContnetDto> write(@RequestBody @Valid WriteReqBody body) {
 		Member actor = rq.getAuthenticatedActor();
 
 		Post post = postService.write(actor, body.title(), body.content(), body.published(), body.listed());
@@ -75,12 +75,12 @@ public class ApiV1PostController {
 		return new RsData<>(
 			"201-1",
 			"%d번 글 작성이 완료되었습니다.".formatted(post.getId()),
-			new PostDto(post)
+			new PostWithContnetDto(post)
 		);
 	}
 
 	@PutMapping("{id}")
-	public RsData<PostDto> modify(@PathVariable long id, @RequestBody @Valid WriteReqBody body) {
+	public RsData<PostWithContnetDto> modify(@PathVariable long id, @RequestBody @Valid WriteReqBody body) {
 		Member actor = rq.getAuthenticatedActor();
 		Post post = postService.getItem(id)
 			.orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 글입니다."));
@@ -92,7 +92,7 @@ public class ApiV1PostController {
 		return new RsData<>(
 			"200-1",
 			"%d번 글 수정이 완료되었습니다.".formatted(post.getId()),
-			new PostDto(post)
+			new PostWithContnetDto(post)
 		);
 	}
 
