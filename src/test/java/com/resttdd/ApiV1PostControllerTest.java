@@ -44,7 +44,11 @@ class ApiV1PostControllerTest {
 		void itemsA() throws Exception {
 			var page = 1;
 			var pageSize = 3;
-			var resultActions = itemsRequest();
+			var resultActions = mvc
+				.perform(
+					get("/api/v1/posts")
+				)
+				.andDo(print());
 			var posts = postService.getListedItems(page, pageSize, "title", "").getContent();
 			checkPosts(resultActions, posts);
 
@@ -59,12 +63,23 @@ class ApiV1PostControllerTest {
 				.andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
 		}
 
-		private ResultActions itemsRequest() throws Exception {
-			return mvc
-				.perform(
-					get("/api/v1/posts")
-				)
-				.andDo(print());
+		private void checkPosts(ResultActions resultActions, List<Post> posts) throws Exception {
+			for (int i = 0; i < posts.size(); i++) {
+				Post post = posts.get(i);
+				resultActions
+					.andExpect(jsonPath("$.data.items[%d]".formatted(i)).exists())
+					.andExpect(jsonPath("$.data.items[%d].id".formatted(i)).value(post.getId()))
+					.andExpect(jsonPath("$.data.items[%d].title".formatted(i)).value(post.getTitle()))
+					.andExpect(jsonPath("$.data.items[%d].content".formatted(i)).value(post.getContent()))
+					.andExpect(jsonPath("$.data.items[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
+					.andExpect(jsonPath("$.data.items[%d].authorName".formatted(i)).value(post.getAuthor().getNickname()))
+					.andExpect(jsonPath("$.data.items[%d].published".formatted(i)).value(post.isPublished()))
+					.andExpect(jsonPath("$.data.items[%d].listed".formatted(i)).value(post.isListed()))
+					.andExpect(jsonPath("$.data.items[%d].createdDate".formatted(i)).value(
+						matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
+					.andExpect(jsonPath("$.data.items[%d].modifiedDate".formatted(i)).value(
+						matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
+			}
 		}
 
 		@Test
@@ -91,25 +106,9 @@ class ApiV1PostControllerTest {
 				.andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
 				.andExpect(jsonPath("$.data.totalPages").value(3)) // 전체 페이지 개수
 				.andExpect(jsonPath("$.data.totalItems").value(7));
-		}
-	}
 
-	private void checkPosts(ResultActions resultActions, List<Post> posts) throws Exception {
-		for (int i = 0; i < posts.size(); i++) {
-			Post post = posts.get(i);
-			resultActions
-				.andExpect(jsonPath("$.data.items[%d]".formatted(i)).exists())
-				.andExpect(jsonPath("$.data.items[%d].id".formatted(i)).value(post.getId()))
-				.andExpect(jsonPath("$.data.items[%d].title".formatted(i)).value(post.getTitle()))
-				.andExpect(jsonPath("$.data.items[%d].content".formatted(i)).value(post.getContent()))
-				.andExpect(jsonPath("$.data.items[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
-				.andExpect(jsonPath("$.data.items[%d].authorName".formatted(i)).value(post.getAuthor().getNickname()))
-				.andExpect(jsonPath("$.data.items[%d].published".formatted(i)).value(post.isPublished()))
-				.andExpect(jsonPath("$.data.items[%d].listed".formatted(i)).value(post.isListed()))
-				.andExpect(jsonPath("$.data.items[%d].createdDate".formatted(i)).value(
-					matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
-				.andExpect(jsonPath("$.data.items[%d].modifiedDate".formatted(i)).value(
-					matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
+			var searchedPosts = postService.getListedItems(page, pageSize, keywordType, keyword).getContent();
+			checkPosts(resultActions, searchedPosts);
 		}
 	}
 
