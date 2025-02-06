@@ -43,22 +43,21 @@ class ApiV1CommentControllerTest {
 					.header("Authorization", "Bearer " + apiKey)
 					.content("""
 						{
-							"content" : "%s",
+							"content" : "%s"
 						}
 						""".formatted(content).trim().stripIndent())
 					.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
 			)
 			.andDo(print());
 
+		var post = postService.getItem(postId).get();
+		var comment = post.getLatestComment();
 		resultActions
 			.andExpect(status().isCreated())
 			.andExpect(handler().handlerType(ApiV1CommentController.class))
 			.andExpect(handler().methodName("write"))
 			.andExpect(jsonPath("$.code").value("201-1"))
-			.andExpect(jsonPath("$.msg").value("댓글 작성이 완료되었습니다."));
-		var post = postService.getItem(postId).get();
-		var comment = post.getLatestComment();
-		checkComment(resultActions, comment);
+			.andExpect(jsonPath("$.msg").value("%d번 댓글 작성이 완료되었습니다.".formatted(comment.getId())));
 	}
 
 	private void checkComment(ResultActions resultActions, Comment comment) throws Exception {
