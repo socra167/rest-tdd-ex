@@ -40,6 +40,24 @@ public class ApiV1CommentController {
 			() -> new ServiceException("404-1", "존재하지 않는 게시글입니다.")
 		);
 
+		// OSIV(Open Session In View) 설정 (default: true)
+		// 원래대로라면 아래의 코드는 영속성 컨텍스트가 닫혀 getComments()에 실패해야 한다.
+		// 하지만 정상적으로 작동하는 이유는, SpringBoot가 컨트롤러에 한해서 영속성 컨텍스트를 유지시켜주기 때문이다.
+
+		// Repository
+		// Service
+		// Controller
+		// View Layer (ThymeLeaf)
+		// - Entity 사용
+		// 엔티티를 사용하거나, Lazy로딩 데이터들이 그동안은 어떻게 됐는지 모르면 막 쓰는건데
+		// RestFul하게 작성하면, 뷰 레이어를 구축할 필요가 없음
+
+		// REST하게 하면, 사실상 OSIV를 켤 필요가 없다.
+		// OSIV는 서버에서 뷰 레이어까지 다룰 때 언제 엔티티를 사용할지 모르기 때문에 영속성 컨텍스트를 유지시켜주는 설정
+		// 언제 DB 조회를 시도할지 모르기 때문에, 뷰 레이어까지 영속성 컨텍스트를 유지시켜준다.
+
+		// 타임리프를 사용한다면, OSIV를 켜고 하는게 편하다.
+		// 하지만, RESTful로 만든다면 View를 신경쓰지 않아도 되므로 불필요한 자원 소모를 줄이도록 끄는게 낫다.(물론 켜도 잘되긴 한다)
 		return post.getComments()
 			.stream()
 			.map(CommentDto::new)
