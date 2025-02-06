@@ -96,4 +96,8 @@ public class Post extends BaseTime {
 
         throw new ServiceException("403-1", "비공개 설정된 글입니다.");
     }
+
+    public Comment getLatestComment() {
+        return comments.getLast();
+    }
 }
