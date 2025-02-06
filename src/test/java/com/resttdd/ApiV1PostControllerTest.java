@@ -45,7 +45,7 @@ class ApiV1PostControllerTest {
 			var page = 1;
 			var pageSize = 3;
 			var resultActions = itemsRequest();
-			var posts = postService.getListedItems(page, pageSize).getContent();
+			var posts = postService.getListedItems(page, pageSize, "title", "").getContent();
 			checkPosts(resultActions, posts);
 
 			resultActions
@@ -86,7 +86,7 @@ class ApiV1PostControllerTest {
 				.andExpect(handler().handlerType(ApiV1PostController.class))
 				.andExpect(handler().methodName("getItems"))
 				.andExpect(jsonPath("$.code").value("200-1"))
-				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다.".formatted(keyword)))
+				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
 				.andExpect(jsonPath("$.data.items.length()").value(pageSize)) // 한 페이지당 보여줄 글 개수
 				.andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
 				.andExpect(jsonPath("$.data.totalPages").value(3)) // 전체 페이지 개수
