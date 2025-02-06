@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.resttdd.domain.member.member.service.MemberService;
 import com.resttdd.domain.post.post.controller.ApiV1PostController;
 import com.resttdd.domain.post.post.entity.Post;
 import com.resttdd.domain.post.post.service.PostService;
@@ -34,6 +35,9 @@ class ApiV1PostControllerTest {
 
 	@Autowired
 	private PostService postService;
+
+	@Autowired
+	private MemberService memberService;
 
 	@Nested
 	@DisplayName("글 목록 조회")
@@ -144,7 +148,7 @@ class ApiV1PostControllerTest {
 		@Test
 		@DisplayName("성공 - 내가 작성한 글 목록을 조회할 수 있으며 결과는 페이징되어야 한다")
 		void itemsD_myPosts() throws Exception {
-			var apiKey = "user1"; // user1이 작성한 글 조회
+			var apiKey = "user2"; // user1이 작성한 글 조회
 			var page = 1;
 			var pageSize = 3;
 			var keywordType = "content";
@@ -160,14 +164,17 @@ class ApiV1PostControllerTest {
 			resultActions
 				.andExpect(status().isOk())
 				.andExpect(handler().handlerType(ApiV1PostController.class))
-				.andExpect(handler().methodName("getItems"))
+				.andExpect(handler().methodName("getMines"))
 				.andExpect(jsonPath("$.code").value("200-1"))
 				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
 				.andExpect(jsonPath("$.data.content").doesNotExist())
 				.andExpect(jsonPath("$.data.items.length()").value(pageSize)) // 한 페이지당 보여줄 글 개수
 				.andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
 				.andExpect(jsonPath("$.data.totalPages").value(2)) // 전체 페이지 개수
-				.andExpect(jsonPath("$.data.totalItems").value(4));
+				.andExpect(jsonPath("$.data.totalItems").value(5));
+			var author = memberService.findByApiKey(apiKey).get();
+			var posts = postService.getMines(page, pageSize, author, keywordType, keyword).getContent();
+			checkPosts(resultActions, posts);
 		}
 	}
 
