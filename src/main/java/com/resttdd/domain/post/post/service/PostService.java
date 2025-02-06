@@ -65,7 +65,7 @@ public class PostService {
 	}
 
 	public Page<Post> getListedItems(int page, int pageSize) {
-		PageRequest pageRequest = PageRequest.of(page, pageSize);
+		PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
 		return postRepository.findByListed(true, pageRequest);
 	}
 }

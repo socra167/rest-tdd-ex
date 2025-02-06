@@ -35,33 +35,38 @@ class ApiV1PostControllerTest {
 	@Autowired
 	private PostService postService;
 
-	@Test
+	@Nested
 	@DisplayName("글 목록 조회")
-	void itemsA() throws Exception {
-		var apiKey = "";
-		var resultActions = itemsRequest(apiKey);
+	class items {
 
-		List<Post> posts = postService.getListedItems(1, 3).getContent();
-		checkPosts(resultActions, posts);
+		@Test
+		@DisplayName("글 목록 조회")
+		void itemsA() throws Exception {
+			var apiKey = "";
+			var resultActions = itemsRequest(apiKey);
 
-		resultActions
-			.andExpect(status().isOk())
-			.andExpect(handler().handlerType(ApiV1PostController.class))
-			.andExpect(handler().methodName("getItems"))
-			.andExpect(jsonPath("$.code").value("200-1"))
-			.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
-			.andExpect(jsonPath("$.data.items.length()").value(3)) // 한 페이지당 보여줄 글 개수
-			.andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
-			.andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
-	}
+			List<Post> posts = postService.getListedItems(1, 3).getContent();
+			checkPosts(resultActions, posts);
 
-	private ResultActions itemsRequest(String apiKey) throws Exception {
-		return mvc
-			.perform(
-				get("/api/v1/posts")
-					.header("Authorization", "Bearer %s".formatted(apiKey))
-			)
-			.andDo(print());
+			resultActions
+				.andExpect(status().isOk())
+				.andExpect(handler().handlerType(ApiV1PostController.class))
+				.andExpect(handler().methodName("getItems"))
+				.andExpect(jsonPath("$.code").value("200-1"))
+				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
+				.andExpect(jsonPath("$.data.items.length()").value(3)) // 한 페이지당 보여줄 글 개수
+				.andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
+				.andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
+		}
+
+		private ResultActions itemsRequest(String apiKey) throws Exception {
+			return mvc
+				.perform(
+					get("/api/v1/posts")
+						.header("Authorization", "Bearer %s".formatted(apiKey))
+				)
+				.andDo(print());
+		}
 	}
 
 	private void checkPosts(ResultActions resultActions, List<Post> posts) throws Exception {
