@@ -13,4 +13,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	Optional<Post> findTopByOrderByIdDesc();
 
 	Page<Post> findByListedAndTitleLike(boolean listed, String title, PageRequest pageRequest);
+
+	Page<Post> findByListedAndContentLike(boolean listed, String content, PageRequest pageRequest);
 }

@@ -67,6 +67,9 @@ public class PostService {
 	public Page<Post> getListedItems(int page, int pageSize, String keywordType, String keyword) {
 		PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
 		String likeKeyword = "%" + keyword + "%";
+		if (keywordType.equals("content")) {
+			return postRepository.findByListedAndContentLike(true, likeKeyword, pageRequest);
+		}
 		return postRepository.findByListedAndTitleLike(true, likeKeyword, pageRequest);
 	}
 }
