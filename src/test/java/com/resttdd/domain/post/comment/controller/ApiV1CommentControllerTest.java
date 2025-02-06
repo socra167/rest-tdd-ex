@@ -125,4 +125,23 @@ class ApiV1CommentControllerTest {
 			.andExpect(jsonPath("$.code").value("200-1"))
 			.andExpect(jsonPath("$.msg").value("%d번 댓글 삭제가 완료되었습니다.".formatted(commentId)));
 	}
+
+	@Test
+	@DisplayName("글에 대한 댓글을 모두 조회할 수 있다")
+	void items() throws Exception {
+		var postId = 1L;
+		var resultActions = mvc
+			.perform(
+				get("/api/v1/posts/%d/comments".formatted(postId))
+			)
+			.andDo(print());
+
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(handler().handlerType(ApiV1CommentController.class))
+			.andExpect(handler().methodName("getItems"))
+			.andExpect(jsonPath("$.length()").value(2))
+			.andExpect(jsonPath("$[0].id").value(1))
+			.andExpect(jsonPath("$[1].id").value(2));
+	}
 }
