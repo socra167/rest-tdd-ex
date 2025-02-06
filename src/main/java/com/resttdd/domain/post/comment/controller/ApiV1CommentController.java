@@ -34,6 +34,7 @@ public class ApiV1CommentController {
 	private final EntityManager em;
 
 	@GetMapping
+	@Transactional(readOnly = true) // 조회만 하는 메서드라면 readOnly를 적용하는게 낫다
 	public List<CommentDto> getItems(@PathVariable long postId) {
 
 		Post post = postService.getItem(postId).orElseThrow(
@@ -65,6 +66,7 @@ public class ApiV1CommentController {
 	}
 
 	@GetMapping("{id}")
+	@Transactional(readOnly = true)
 	public CommentDto getItem(@PathVariable long postId, @PathVariable long id) {
 
 		Post post = postService.getItem(postId).orElseThrow(
@@ -81,7 +83,7 @@ public class ApiV1CommentController {
 	}
 
 	@PostMapping
-	@Transactional
+	@Transactional // DB 반영을 위한 Transactional
 	public RsData<Void> write(@PathVariable long postId, @RequestBody WriteReqBody reqBody) {
 		Member actor = rq.getAuthenticatedActor();
 		Comment comment = _write(postId, actor, reqBody.content());
