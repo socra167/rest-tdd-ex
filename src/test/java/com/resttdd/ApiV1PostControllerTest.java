@@ -101,6 +101,7 @@ class ApiV1PostControllerTest {
 				.andExpect(handler().methodName("getItems"))
 				.andExpect(jsonPath("$.code").value("200-1"))
 				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
+				.andExpect(jsonPath("$.data.content").doesNotExist())
 				.andExpect(jsonPath("$.data.items.length()").value(pageSize)) // 한 페이지당 보여줄 글 개수
 				.andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
 				.andExpect(jsonPath("$.data.totalPages").value(3)) // 전체 페이지 개수
@@ -130,6 +131,7 @@ class ApiV1PostControllerTest {
 				.andExpect(handler().methodName("getItems"))
 				.andExpect(jsonPath("$.code").value("200-1"))
 				.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
+				.andExpect(jsonPath("$.data.content").doesNotExist())
 				.andExpect(jsonPath("$.data.items.length()").value(pageSize)) // 한 페이지당 보여줄 글 개수
 				.andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
 				.andExpect(jsonPath("$.data.totalPages").value(3)) // 전체 페이지 개수
