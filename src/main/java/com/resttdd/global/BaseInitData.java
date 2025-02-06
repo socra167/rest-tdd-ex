@@ -66,7 +66,7 @@ public class BaseInitData {
         Post post2 = postService.write(user1, "농구하실분?", "3명 모집", true, false);
         post2.addComment(user1, "저는 이미 축구하기로 함..");
 
-        postService.write(user1, "title3", "content3", true, true);
+        postService.write(user2, "title3", "content3", true, true);
         postService.write(user1, "title4", "content4", true, true);
         postService.write(user1, "title5", "content5", true, true);
         postService.write(user2, "title6", "content6", true, true);
