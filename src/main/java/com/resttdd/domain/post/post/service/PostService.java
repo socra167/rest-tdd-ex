@@ -72,4 +72,7 @@ public class PostService {
 		}
 		return postRepository.findByListedAndTitleLike(true, likeKeyword, pageRequest);
 	}
+
+	public Page<Post> getMines(int page, int pageSize, Member actor, String keywordType, String keyword) {
+	}
 }
