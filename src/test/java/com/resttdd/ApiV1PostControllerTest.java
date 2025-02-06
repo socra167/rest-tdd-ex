@@ -42,14 +42,17 @@ class ApiV1PostControllerTest {
 		var resultActions = itemsRequest(apiKey);
 
 		List<Post> posts = postService.getListedItems();
+		checkPosts(resultActions, posts);
 
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(handler().handlerType(ApiV1PostController.class))
 			.andExpect(handler().methodName("getItems"))
 			.andExpect(jsonPath("$.code").value("200-1"))
-			.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."));
-		checkPosts(resultActions, posts);
+			.andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."))
+			.andExpect(jsonPath("$.data.length()").value(3)) // 한 페이지당 보여줄 글 개수
+			.andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
+			.andExpect(jsonPath("$.data.totalPages").isArray()); // 전체 페이지 개수
 	}
 
 	private ResultActions itemsRequest(String apiKey) throws Exception {
