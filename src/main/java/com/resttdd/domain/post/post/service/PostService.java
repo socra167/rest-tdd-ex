@@ -73,6 +73,12 @@ public class PostService {
 		return postRepository.findByListedAndTitleLike(true, likeKeyword, pageRequest);
 	}
 
-	public Page<Post> getMines(int page, int pageSize, Member actor, String keywordType, String keyword) {
+	public Page<Post> getMines(int page, int pageSize, Member author, String keywordType, String keyword) {
+		PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
+		String likeKeyword = "%" + keyword + "%";
+		if (keywordType.equals("content")) {
+			return postRepository.findByAuthorAndContentLike(author, likeKeyword, pageRequest);
+		}
+		return postRepository.findByAuthorAndTitleLike(author, likeKeyword, pageRequest);
 	}
 }
