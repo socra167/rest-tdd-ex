@@ -55,7 +55,7 @@ class ApiV1PostControllerTest {
 	private ResultActions itemsRequest(String apiKey) throws Exception {
 		return mvc
 			.perform(
-				get("/api/v1/posts/")
+				get("/api/v1/posts")
 					.header("Authorization", "Bearer %s".formatted(apiKey))
 			)
 			.andDo(print());

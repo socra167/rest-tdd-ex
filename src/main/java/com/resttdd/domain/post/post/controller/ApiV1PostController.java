@@ -1,5 +1,7 @@
 package com.resttdd.domain.post.post.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +30,17 @@ import lombok.RequiredArgsConstructor;
 public class ApiV1PostController {
 	private final PostService postService;
 	private final Rq rq;
+
+	@GetMapping
+	public RsData<List<PostDto>> getItems() {
+		List<Post> posts = postService.getItems();
+
+		return new RsData<>(
+			"200-1",
+			"글 목록 조회가 완료되었습니다.",
+			posts.stream().map(PostDto::new).toList()
+		);
+	}
 
 	@GetMapping("{id}")
 	public RsData<PostDto> getItem(@PathVariable long id) {
