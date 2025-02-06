@@ -3,6 +3,7 @@ package com.resttdd.domain.post.post.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +64,7 @@ public class PostService {
 	}
 
 	public List<Post> getListedItems() {
-		return postRepository.findByListed(true);
+		PageRequest pageRequest = PageRequest.of(0, 3);
+		return postRepository.findByListed(true, pageRequest);
 	}
 }
